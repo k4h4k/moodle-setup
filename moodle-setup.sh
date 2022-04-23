@@ -245,7 +245,7 @@ display_information(){
 #--------------------/Import----------------#
 
 #--------------------Script Start----------------#
-sudo apt install -y software-properties-common
+sudo apt install -y software-properties-common && sudo apt update
 debug_function script start
 server_check
 required_installs
