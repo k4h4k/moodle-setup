@@ -116,7 +116,83 @@ FLUSH PRIVILEGES;
 \q
 EOF
 }
+configure_php(){
 
+    sudo echo -e "US/Eastern" > /etc/timezone
+    dpkg-reconfigure -f noninteractive tzdata
+    #detect php version
+    php_version=7.4
+    #define the timezone to the php.ini for security 
+    sudo chmod 666 /etc/php/*/apache2/php.ini
+    sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/"${php_version}"/apache2/php.ini
+    
+    sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
+    #source https://docs.moodle.org/400/en/Configuration_file
+    cp $moodle_path/config-dist.php $moodle_path/config.php
+
+    ##FIXME: Need to update these values in the $moodle_path/config.php
+    sed -i "/\$CFG->dbname/s/moodle/$sql_db_name/" config-dist.php
+    sed -i "/\$CFG->dbuser/s/username/$user/" config-dist.php
+    sed -i "/\$CFG->dbpass/s/password/$sql_pass/" config-dist.php
+    sed -i "/\$CFG->wwwroot/s/example.com\/moodle|$local_ip|" config-dist.php
+    sed -i "/\$CFG->dataroot/s/\/home\/example\/moodledata|$moodle_data|" config-dist.php
+
+    #configure moodle php settings
+    #increase post and upload size to 3GB from 8MB
+    for file in $php_files;do
+        sed -i "post_max_size|s|8M|3G|g" $file
+        sed -i "upload_max_filesize|s|8M|3G|g" $file
+    done
+
+}
+apache_install_function(){
+    debug_function "$FUNCNAME"
+    #required installs
+    echo -e "processing...."
+    echo -e "installing apache2 libapache2-mod-php "
+    sudo apt install apache2 libapache2-mod-php -y &> /dev/null
+    sudo ufw allow in "WWW Full"
+    sudo systemctl enable apache2
+    source /etc/apache2/envvars
+    chmod 666 /etc/apache2/mods-enabled/dir.conf
+    echo -e "<IfModule mod_dir.c>
+    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+    </IfModule>" |sudo tee -a /etc/apache2/mods-enabled/dir.conf
+    sudo systemctl reload apache2
+    #create apache configuration files for website including SSL information
+    sudo touch /etc/apache2/sites-available/"${domain}".conf
+    sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
+        echo -e "<VirtualHost *:80>
+        ServerName $domain
+        ServerAlias www.$domain
+        ServerAdmin $domain@localhost
+        DocumentRoot $moodle_path
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>
+        
+        " | sudo tee /etc/apache2/sites-available/"${domain}".conf
+
+        echo -e "<VirtualHost *:80>
+        ServerName $domain
+        ServerAlias www.$domain
+        ServerAdmin $domain@localhost
+        DocumentRoot $moodle_path
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>"|sudo tee -a /etc/apache2/apache2.conf
+
+    sudo a2ensite "$domain"
+    sudo a2dissite 000-default
+    sudo a2enconf fqdn
+    sudo chmod 666 /etc/php/*/apache2/php.ini
+    #https://quadlayers.com/fix-divi-builder-timeout-error/
+    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
+    #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
+    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
+
+    sudo apache2ctl configtest && sudo systemctl reload apache2
+}
 download_moodle(){
     #download moodle data to moodle path
     cd /opt || exit
@@ -164,36 +240,6 @@ mac_moodle_install(){
     sleep 7
     open /Applications/MAMP/MAMP.app
 }
-configure_php(){
-
-    sudo echo -e "US/Eastern" > /etc/timezone
-    dpkg-reconfigure -f noninteractive tzdata
-    #detect php version
-    php_version=7.4
-    #define the timezone to the php.ini for security 
-    sudo chmod 666 /etc/php/*/apache2/php.ini
-    sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/"${php_version}"/apache2/php.ini
-    
-    sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
-    #source https://docs.moodle.org/400/en/Configuration_file
-    cp $moodle_path/config-dist.php $moodle_path/config.php
-
-    ##FIXME: Need to update these values in the $moodle_path/config.php
-    sed -i "/\$CFG->dbname/s/moodle/$sql_db_name/" config-dist.php
-    sed -i "/\$CFG->dbuser/s/username/$user/" config-dist.php
-    sed -i "/\$CFG->dbpass/s/password/$sql_pass/" config-dist.php
-    sed -i "|\$CFG->wwwroot|s|http://example.com/moodle|http://$local_ip|" config-dist.php
-    sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" config-dist.php
-
-    #configure moodle php settings
-    #increase post and upload size to 3GB from 8MB
-    for file in $php_files;do
-        sed -i "post_max_size|s|8M|3G|g" $file
-        sed -i "upload_max_filesize|s|8M|3G|g" $file
-    done
-
-}
-
 # setup_apache(){
 #     #edit config file for fqdn
 #     echo "$domain localhost" | sudo tee -a /etc/apache2/conf-available/fqdn.conf
@@ -218,53 +264,7 @@ configure_php(){
 #     echo "<b>Hello! $domain is working!</b>" > $moodle_path/index.html
 # }
 
-apache_install_function(){
-    debug_function "$FUNCNAME"
-    #required installs
-    echo -e "processing...."
-    echo -e "installing apache2 libapache2-mod-php "
-    sudo apt install apache2 libapache2-mod-php -y &> /dev/null
-    sudo ufw allow in "WWW Full"
-    sudo systemctl enable apache2
-    source /etc/apache2/envvars
-    chmod 666 /etc/apache2/mods-enabled/dir.conf
-    echo -e "<IfModule mod_dir.c>
-    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
-    </IfModule>" |sudo tee -a /etc/apache2/mods-enabled/dir.conf
-    sudo systemctl reload apache2
-    #create apache configuration files for website including SSL information
-    sudo touch /etc/apache2/sites-available/"${domain}".conf
-    sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
-        echo -e "<VirtualHost *:80>
-        ServerName $domain
-        ServerAlias www.$domain
-        ServerAdmin $domain@localhost
-        DocumentRoot $moodle_path
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
-        </VirtualHost>
-        
-        " | sudo tee /etc/apache2/sites-available/"${domain}".conf
 
-        echo -e "<VirtualHost *:80>
-        ServerName $domain
-        ServerAlias www.$domain
-        ServerAdmin $domain@localhost
-        DocumentRoot $moodle_path
-        ErrorLog ${APACHE_LOG_DIR}/error.log
-        CustomLog ${APACHE_LOG_DIR}/access.log combined
-        </VirtualHost>"|sudo tee -a /etc/apache2/apache2.conf
-
-    sudo a2ensite "$domain"
-    sudo a2dissite 000-default
-    sudo chmod 666 /etc/php/*/apache2/php.ini
-    #https://quadlayers.com/fix-divi-builder-timeout-error/
-    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
-    #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
-    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
-
-    sudo apache2ctl configtest && sudo systemctl reload apache2
-}
 fix_permissions(){
     sudo chown -R www-data:www-data $moodle_path /var/www
     sudo chmod -R 0755 $moodle_path
