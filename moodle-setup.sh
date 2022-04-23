@@ -18,6 +18,11 @@ debug_function(){
 
 #--------------------Variables----------------#
 debug_function Variables
+
+user="username_here"
+admin_email="user@email.com_here"
+
+
 OS=$(uname)
 current_user=$(whoami)
 line="++---------------------------++----------------------------------++"
@@ -26,8 +31,6 @@ domain="moodle"
 domain_path="/var/www/html"
 moodle_path="${domain_path}/Moodle"
 moodle_data="/var/www/moodledata"
-user="username_here"
-admin_email="user@email.com_here"
 # pkgs to install on system
 linux_installs="diceware mariadb-server net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mysql php diceware"
@@ -118,7 +121,7 @@ linux_install_maria(){
     sudo echo -e "US/Eastern" > /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
     #detect php version
-    php_version=$(php -v |cut -d " " -f 2|cut -d "~" -f 1|head -n 1)
+    php_version=7.4
     #define the timezone to the php.ini for security 
     sudo chmod 666 /etc/php/*/apache2/php.ini
     sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/"${php_version}"/apache2/php.ini
@@ -139,8 +142,10 @@ linux_install_maria(){
     #-e allows passing of commands , sudo allows running as root user
     #create default sql db
     sudo mariadb -e "CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+    #create user
+    sudo mariadb -e "create user \'$user\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
     #essentially create sql user based on the current user
-    sudo mariadb -e "GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$current_user'@'localhost' IDENTIFIED BY '$sql_pass';"
+    sudo mariadb -e "GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$user'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 
@@ -160,9 +165,9 @@ mooodle_install(){
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #install git
     cd /opt/moodle || exit
-    git branch -a
-    git branch --track MOODLE_400_STABLE origin/MOODLE_400_STABLE
-    git checkout MOODLE_400_STABLE
+    sudo git branch -a
+    sudo git branch --track MOODLE_400_STABLE origin/MOODLE_400_STABLE
+    sudo git checkout MOODLE_400_STABLE
     #install to /var/www/html
     sudo cp -R /opt/moodle $domain_path
 
@@ -198,6 +203,7 @@ configure_php(){
         sed "post_max_size|s|8M|3G|g" $file
         sed "upload_max_filesize|s|8M|3G|g" $file
     done
+    
 }
 setup_apache(){
     #edit config file for fqdn
@@ -231,9 +237,40 @@ fix_permissions(){
 }
 
 display_information(){
-    printf "Script has successfully ran for $domain\n\nThe web portion can be found at:$local_ip/moodle
-    The Moodle Files can be found at: $moodle_path\nUsername:$user\nSQL Database Name:$sql_db_name\nSQL Password:$sql_pass
-    Finish set up by visiting http://${local_ip}/moodle\n"
+    echo "
+Finish set up by visiting http://${local_ip}/moodle
+SQL Database Name:$sql_db_name - SQL USER:$user
+SQL Password:$sql_pass
+
+Follow the prompts:
+Change the path for moodledata
+
+/var/moodledata
+Database Type
+
+Choose: mysqli
+Database Settings
+
+Host server: localhost
+
+Database: moodle
+
+User: moodledude (the user you created when setting up the database)
+
+Password: passwordformoodledude (the password for the user you created)
+
+Tables Prefix: mdl_
+Environment Checks
+
+This will indicate if any elements required to run moodle haven't been installed.
+Next next next...
+
+follow prompts and confirm installation
+Create a Site Administrator Account
+
+Create your moodle user account which will have site administrator permissions.
+
+The password you select has to meet certain security requirements. "
 }
 #--------------------/Functions----------------#
 
