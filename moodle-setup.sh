@@ -342,7 +342,7 @@ moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system
-linux_installs="diceware mariadb-server net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mysql php diceware"
 sql_db_name="${domain//_/}db"
 php_files="/Applications/MAMP/conf/php7.4.2/php.ini /Applications/MAMP/bin/php/php7.4.2/conf/php.ini"
