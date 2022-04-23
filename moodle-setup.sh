@@ -1,6 +1,6 @@
 #!/bin/bash
 #--------------------References----------------#
-    #https://docs.moodle.org/311/en/Installing_Moodle#Download_and_copy_files_into_place
+#https://docs.moodle.org/311/en/Installing_Moodle#Download_and_copy_files_into_place
 
 #--------------------/References----------------#
 
@@ -25,7 +25,7 @@ line="++---------------------------++----------------------------------++"
 domain="moodle"
 domain_path="/var/www/html/"
 moodle_path="${domain_path}/Moodle"
-moodle_data="/var/moodledata"
+moodle_data="/var/www/moodledata"
 user="username_here"
 admin_email="user@email.com_here"
 # pkgs to install on system
@@ -192,7 +192,6 @@ mac_moodle_install(){
     open /Applications/MAMP/MAMP.app
 }
 configure_php(){
-    
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
     for file in $php_files;do
@@ -227,14 +226,14 @@ setup_apache(){
 fix_permissions(){
     sudo chown -R www-data:www-data $moodle_path
     sudo chmod -R 0755 $moodle_path
-    sudo chown -R www-data $moodle_data
+    sudo chown -R www-data:www-data $moodle_data
     sudo chmod -R 777 $moodle_data
 }
 
 display_information(){
     printf "Script has successfully ran for $domain\n\nThe web portion can be found at:$local_ip/moodle
     The Moodle Files can be found at: $moodle_path\nUsername:$user\nSQL Database Name:$sql_db_name\nSQL Password:$sql_pass
-    Finish set up by visiting $local_ip/moodle"
+    Finish set up by visiting $local_ip/moodle\n"
 }
 #--------------------/Functions----------------#
 
