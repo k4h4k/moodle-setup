@@ -172,10 +172,19 @@ configure_php(){
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
     for file in $php_files;do
-        sed "post_max_size|s|8M|3G|g" $file
-        sed "upload_max_filesize|s|8M|3G|g" $file
+        sed -i "post_max_size|s|8M|3G|g" $file
+        sed -i "upload_max_filesize|s|8M|3G|g" $file
     done
     sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
+    #source https://docs.moodle.org/400/en/Configuration_file
+    cp $moodle_path/config-dist.php $moodle_path/config.php
+
+    ##FIXME: Need to update these values in the $moodle_path/config.php
+    # $CFG->dbname    = 'moodle';     // database name, eg moodle
+    # $CFG->dbuser    = 'username';   // your database username
+    # $CFG->dbpass    = 'password';
+    # $CFG->wwwroot   = 'http://example.com/moodle';
+    # $CFG->dataroot  = '/home/example/moodledata';
 }
 # setup_apache(){
 #     #edit config file for fqdn
