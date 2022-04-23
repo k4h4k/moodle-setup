@@ -23,7 +23,7 @@ current_user=$(whoami)
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 domain="moodle"
-domain_path="/var/www/html/"
+domain_path="/var/www/html"
 moodle_path="${domain_path}/Moodle"
 moodle_data="/var/www/moodledata"
 user="username_here"
