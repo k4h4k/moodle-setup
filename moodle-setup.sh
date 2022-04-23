@@ -224,8 +224,8 @@ apache_install_function(){
     sudo touch /etc/apache2/sites-available/"${domain}".conf
     sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
         echo -e "<VirtualHost *:80>
-        ServerName $url
-        ServerAlias www.$url
+        ServerName $domain
+        ServerAlias www.$domain
         ServerAdmin $domain@localhost
         DocumentRoot $moodle_path
         ErrorLog ${APACHE_LOG_DIR}/error.log
@@ -235,8 +235,8 @@ apache_install_function(){
         " | sudo tee -a /etc/apache2/sites-available/"${domain}".conf
 
         echo -e "<VirtualHost *:80>
-        ServerName $url
-        ServerAlias www.$url
+        ServerName $domain
+        ServerAlias www.$domain
         ServerAdmin $domain@localhost
         DocumentRoot $moodle_path
         ErrorLog ${APACHE_LOG_DIR}/error.log
