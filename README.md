@@ -6,7 +6,7 @@ Instructions found on the Moodle website: https://docs.moodle.org/400/en/Step-by
 
 # Install and Use
 **One Liner**
-`sudo apt install -y git && git clone https://github.com/k4h4k/moodle-setup && ./moodle-setup/setup.sh`
+`sudo apt install -y git && git clone https://github.com/k4h4k/moodle-setup && ./moodle-setup/moodle-setup.sh`
 
 ## After Install
 Open your browser and go to http://IP.ADDRESS.OF.SERVER/moodle
