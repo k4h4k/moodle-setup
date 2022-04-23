@@ -141,12 +141,12 @@ mooodle_install(){
     sudo git branch --track MOODLE_400_STABLE origin/MOODLE_400_STABLE
     sudo git checkout MOODLE_400_STABLE
     #install to /var/www/html
-    sudo cp -R /opt/moodle $domain_path
+    sudo cp -R /opt/moodle $moodle_path
 
 
-    sudo chmod -R 777 $domain_path
+    sudo chmod -R 777 $moodle_path
     #run install as www-data or apache
-    sudo -u www-data /usr/bin/php $domain_path/admin/cli/install.php
+    sudo -u www-data /usr/bin/php $moodle_path/admin/cli/install.php
 }
 mac_moodle_install(){
     #download moodle dmg file to Downloads
@@ -175,42 +175,95 @@ configure_php(){
         sed "post_max_size|s|8M|3G|g" $file
         sed "upload_max_filesize|s|8M|3G|g" $file
     done
-    sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $domain_path/config.php
+    sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
 }
-setup_apache(){
-    #edit config file for fqdn
-    echo "$domain localhost" | sudo tee -a /etc/apache2/conf-available/fqdn.conf
+# setup_apache(){
+#     #edit config file for fqdn
+#     echo "$domain localhost" | sudo tee -a /etc/apache2/conf-available/fqdn.conf
 
-    #create sample page
-    sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/$domain.conf  
+#     #create sample page
+#     sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/$domain.conf  
 
-    sudo sed -i "s|/var/www/html|$domain_path|g" /etc/apache2/sites-available/$domain.conf
-    #enable fqdn
-    sudo a2enconf fqdn
+#     sudo sed -i "s|/var/www/html|$moodle_path|g" /etc/apache2/sites-available/$domain.conf
+#     #enable fqdn
+#     sudo a2enconf fqdn
 
-    #disable defualt site
-    #enable domain
-    sudo a2dissite 000-default && sudo a2ensite $domain
-    sudo a2enmod ssl
+#     #disable defualt site
+#     #enable domain
+#     sudo a2dissite 000-default && sudo a2ensite $domain
+#     sudo a2enmod ssl
+#     sudo apache2ctl configtest
+#     sudo systemctl reload apache2
+#     #restart apache
+#     sudo /etc/init.d/apache2 restart
+
+#     #create sample page
+#     echo "<b>Hello! $domain is working!</b>" > $moodle_path/index.html
+# }
+
+apache_install_function(){
+    debug_function "$FUNCNAME"
+    #required installs
+    echo -e "processing...."
+    echo -e "installing apache2 libapache2-mod-php "
+    sudo apt install apache2 libapache2-mod-php -y &> /dev/null
+    sudo ufw allow in "WWW Full"
+    sudo systemctl enable apache2
+    source /etc/apache2/envvars
+    chmod 666 /etc/apache2/mods-enabled/dir.conf
+    echo -e "<IfModule mod_dir.c>
+    DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
+    </IfModule>" |sudo tee -a /etc/apache2/mods-enabled/dir.conf
+    sudo systemctl reload apache2
+    #creates user group will changing ownership
+    #gives apache the ability to write to path
+    fix_WP_permissions_function
+    #prompt user for cloudflare certs
+    cloudflare_cert
+    #create apache configuration files for website including SSL information
+    sudo touch /etc/apache2/sites-available/"${domain}".conf
+    sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
+        echo -e "<VirtualHost *:80>
+        ServerName $url
+        ServerAlias www.$url
+        ServerAdmin $domain@localhost
+        DocumentRoot $moodle_path
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>
+        
+        " | sudo tee -a /etc/apache2/sites-available/"${domain}".conf
+
+        echo -e "<VirtualHost *:80>
+        ServerName $url
+        ServerAlias www.$url
+        ServerAdmin $domain@localhost
+        DocumentRoot $moodle_path
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        </VirtualHost>"|sudo tee -a /etc/apache2/apache2.conf
+
+    sudo a2ensite "$domain"
+    sudo a2dissite 000-default
+    sudo chmod 666 /etc/php/*/apache2/php.ini
+    #https://quadlayers.com/fix-divi-builder-timeout-error/
+    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
+    #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
+    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
+
     sudo apache2ctl configtest
     sudo systemctl reload apache2
-    #restart apache
-    sudo /etc/init.d/apache2 restart
-
-    #create sample page
-    echo "<b>Hello! $domain is working!</b>" > $domain_path/index.html
 }
-
 fix_permissions(){
-    sudo chown -R www-data:www-data $domain_path /var/www
-    sudo chmod -R 0755 $domain_path
+    sudo chown -R www-data:www-data $moodle_path /var/www
+    sudo chmod -R 0755 $moodle_path
     sudo chown -R www-data:www-data $moodle_data
     sudo chmod -R 777 $moodle_data
 }
 
 set_up_cron(){
     #source https://docs.moodle.org/400/en/Cron
-    echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $domain_path/admin/cli/cron.php" | sudo crontab -u root -
+    echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $moodle_path/admin/cli/cron.php" | sudo crontab -u root -
 }
 
 display_information(){
@@ -269,7 +322,7 @@ current_user=$(whoami)
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 domain="moodle"
-domain_path="/var/www/moodle"
+moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system
@@ -282,8 +335,8 @@ php_files="/Applications/MAMP/conf/php7.4.2/php.ini /Applications/MAMP/bin/php/p
 #--------------------Initial Actions----------------#
 debug_function Initial Actions
 
-sudo mkdir -p $domain_path $domain_path $moodle_data $quarantine_dir
-sudo chown -R www-data:www-data $domain_path $domain_path $moodle_data $quarantine_dir
+sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
+sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
 sudo apt install -y software-properties-common && sudo apt update
 #--------------------/Initial Actions----------------#
 #--------------------Script Start----------------#
