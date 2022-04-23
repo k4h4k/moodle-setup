@@ -86,7 +86,7 @@ required_installs(){
         #end Linux install section
     fi
 }
-linux_install_maria(){
+linux_sql_function(){
     #path, domain, adminUser, sql_pass all defined in appacheAttribute function
     #security settings
     sudo echo -e "US/Eastern" > /etc/timezone
@@ -141,7 +141,7 @@ mooodle_install(){
     sudo git branch --track MOODLE_400_STABLE origin/MOODLE_400_STABLE
     sudo git checkout MOODLE_400_STABLE
     #install to /var/www/html
-    sudo cp -R /opt/moodle $moodle_path
+    sudo cp -R /opt/moodle/* $moodle_path
 
 
     sudo chmod -R 777 $moodle_path
@@ -228,11 +228,6 @@ apache_install_function(){
     DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm
     </IfModule>" |sudo tee -a /etc/apache2/mods-enabled/dir.conf
     sudo systemctl reload apache2
-    #creates user group will changing ownership
-    #gives apache the ability to write to path
-    fix_WP_permissions_function
-    #prompt user for cloudflare certs
-    cloudflare_cert
     #create apache configuration files for website including SSL information
     sudo touch /etc/apache2/sites-available/"${domain}".conf
     sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
@@ -245,7 +240,7 @@ apache_install_function(){
         CustomLog ${APACHE_LOG_DIR}/access.log combined
         </VirtualHost>
         
-        " | sudo tee -a /etc/apache2/sites-available/"${domain}".conf
+        " | sudo tee /etc/apache2/sites-available/"${domain}".conf
 
         echo -e "<VirtualHost *:80>
         ServerName $domain
@@ -254,7 +249,7 @@ apache_install_function(){
         DocumentRoot $moodle_path
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
-        </VirtualHost>"|sudo tee -a /etc/apache2/apache2.conf
+        </VirtualHost>"|sudo tee /etc/apache2/apache2.conf
 
     sudo a2ensite "$domain"
     sudo a2dissite 000-default
@@ -264,8 +259,7 @@ apache_install_function(){
     #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
     sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
 
-    sudo apache2ctl configtest
-    sudo systemctl reload apache2
+    sudo apache2ctl configtest && sudo systemctl reload apache2
 }
 fix_permissions(){
     sudo chown -R www-data:www-data $moodle_path /var/www
@@ -282,8 +276,8 @@ set_up_cron(){
 display_information(){
     echo "
     Finish set up by visiting http://${local_ip}/moodle
-    SQL Database Name:$sql_db_name - SQL USER:$user
-    SQL Password:$sql_pass
+    SQL Database Name: $sql_db_name - SQL USER: $user
+    SQL Password: $sql_pass
 
     Follow the prompts:
     Change the path for moodledata
@@ -313,7 +307,12 @@ display_information(){
 
     Create your moodle user account which will have site administrator permissions.
 
-    The password you select has to meet certain security requirements. "
+    The password you select has to meet certain security requirements. 
+    
+    Finish set up by visiting http://${local_ip}/moodle
+    SQL Database Name: $sql_db_name - SQL USER: $user
+    SQL Password: $sql_pass
+    "
 }
 #--------------------/Functions----------------#
 
@@ -364,6 +363,7 @@ local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
 download_moodle
 fix_permissions
 apache_install_function
+linux_sql_function
 mooodle_install
 fix_permissions
 configure_php
