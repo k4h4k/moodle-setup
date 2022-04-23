@@ -350,6 +350,7 @@ sql_pass=$(diceware -n 5)
 local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
 download_moodle
 fix_permissions
+apache_install_function
 mooodle_install
 fix_permissions
 set_up_cron
