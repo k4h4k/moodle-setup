@@ -174,7 +174,7 @@ configure_php(){
         sed "post_max_size|s|8M|3G|g" $file
         sed "upload_max_filesize|s|8M|3G|g" $file
     done
-    
+    sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $domain_path/config.php
 }
 setup_apache(){
     #edit config file for fqdn
