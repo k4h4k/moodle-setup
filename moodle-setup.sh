@@ -233,7 +233,7 @@ fix_permissions(){
 display_information(){
     printf "Script has successfully ran for $domain\n\nThe web portion can be found at:$local_ip/moodle
     The Moodle Files can be found at: $moodle_path\nUsername:$user\nSQL Database Name:$sql_db_name\nSQL Password:$sql_pass
-    Finish set up by visiting $local_ip/moodle\n"
+    Finish set up by visiting http://${local_ip}/moodle\n"
 }
 #--------------------/Functions----------------#
 
