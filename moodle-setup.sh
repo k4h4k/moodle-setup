@@ -99,7 +99,7 @@ required_installs(){
         #use loop to prevent break from single non usable pkg
         for pkg in $linux_installs;do 
             #install pkg from above , disable stout
-            sudo apt install -y"$pkg"&> /dev/null
+            sudo apt install -y "$pkg" &> /dev/null
             echo "$pkg installed"
         done
         sudo systemctl restart apache2
