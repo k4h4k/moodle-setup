@@ -362,6 +362,7 @@ fix_permissions
 apache_install_function
 mooodle_install
 fix_permissions
+configure_php
 set_up_cron
 display_information
 
