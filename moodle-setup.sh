@@ -102,7 +102,7 @@ required_installs(){
         sudo add-apt-repository ppa:ondrej/php && sudo apt update
         for pkg in $linux_installs;do 
             #install pkg from above , disable stout
-            sudo apt install -y "$pkg" &> /dev/null
+            which "$pkg" || sudo apt install -y "$pkg" &> /dev/null
             echo "$pkg installed"
         done
         sudo systemctl restart apache2
