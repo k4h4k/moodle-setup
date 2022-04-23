@@ -11,14 +11,14 @@ Instructions found on the Moodle website: https://docs.moodle.org/400/en/Step-by
 ## After Install
 Open your browser and go to http://IP.ADDRESS.OF.SERVER/moodle
 
-Follow the prompts:
+## Follow the prompts:
 Change the path for moodledata
 
 /var/moodledata
-Database Type
+## Database Type
 
 Choose: mysqli
-Database Settings
+## Database Settings
 
 Host server: localhost
 
@@ -29,7 +29,7 @@ User: moodledude (the user you created when setting up the database)
 Password: passwordformoodledude (the password for the user you created)
 
 Tables Prefix: mdl_
-Environment Checks
+## Environment Checks
 
 This will indicate if any elements required to run moodle haven't been installed.
 Next next next...
