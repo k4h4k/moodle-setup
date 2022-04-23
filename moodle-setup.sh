@@ -111,13 +111,14 @@ linux_install_maria(){
     #server hardening script Requires user input
     #sudo mysql_secure_installation
     #-e allows passing of commands , sudo allows running as root user
-    #create default sql db
-    sudo mysql -e "CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
-    #create user
-    sudo mysql -e "create user \'$user\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
-    #essentially create sql user based on the current user
-    sudo mysql -e "GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$user'@'localhost' IDENTIFIED BY '$sql_pass';"
-    sudo mysql -e "FLUSH PRIVILEGES;"
+    #create default sql db    
+    sudo mysql -u root mysql<<EOF
+CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
+CREATE USER '$user'@'localhost' IDENTIFIED BY '$sql_pass';
+GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$user'@'localhost' IDENTIFIED BY '$sql_pass'
+FLUSH PRIVILEGES;
+\q
+EOF
 }
 
 download_moodle(){
