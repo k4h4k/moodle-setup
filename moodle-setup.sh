@@ -117,7 +117,6 @@ FLUSH PRIVILEGES;
 EOF
 }
 configure_php(){
-    sudo apt-get --purge remove php-common
     sudo echo -e "US/Eastern" > /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
     #detect php version
@@ -358,6 +357,8 @@ sudo apt install -y software-properties-common && sudo apt update
 #--------------------Script Start----------------#
 debug_function script start
 server_check
+#remove instances of php before installs
+sudo apt-get --purge remove php-common
 required_installs
 #diceware and net-tools may be required for install
 base_pass=$(diceware -n 5)
