@@ -224,7 +224,7 @@ setup_apache(){
 }
 
 fix_permissions(){
-    sudo chown -R www-data:www-data $moodle_path
+    sudo chown -R www-data:www-data $moodle_path /var/www
     sudo chmod -R 0755 $moodle_path
     sudo chown -R www-data:www-data $moodle_data
     sudo chmod -R 777 $moodle_data
