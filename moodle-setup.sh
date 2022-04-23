@@ -180,12 +180,16 @@ configure_php(){
     cp $moodle_path/config-dist.php $moodle_path/config.php
 
     ##FIXME: Need to update these values in the $moodle_path/config.php
-    # $CFG->dbname    = 'moodle';     // database name, eg moodle
-    # $CFG->dbuser    = 'username';   // your database username
-    # $CFG->dbpass    = 'password';
-    # $CFG->wwwroot   = 'http://example.com/moodle';
-    # $CFG->dataroot  = '/home/example/moodledata';
+    sed -i "/\$CFG->dbname/s/moodle/$sql_db_name/" config-dist.php
+    sed -i "/\$CFG->dbuser/s/username/$user/" config-dist.php
+    sed -i "/\$CFG->dbpass/s/password/$sql_pass/" config-dist.php
+    sed -i "|\$CFG->wwwroot|s|http://example.com/moodle|http://$local_ip|" config-dist.php
+    sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" config-dist.php
+
+
+
 }
+
 # setup_apache(){
 #     #edit config file for fqdn
 #     echo "$domain localhost" | sudo tee -a /etc/apache2/conf-available/fqdn.conf
