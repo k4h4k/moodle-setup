@@ -16,35 +16,6 @@ debug_function(){
     ((dval++))
 }
 
-#--------------------Variables----------------#
-debug_function Variables
-
-user="username_here"
-admin_email="user@email.com_here"
-
-
-OS=$(uname)
-current_user=$(whoami)
-line="++---------------------------++----------------------------------++"
-#change defaults if needed
-domain="moodle"
-domain_path="/var/www/html"
-moodle_path="${domain_path}/Moodle"
-moodle_data="/var/www/moodledata"
-# pkgs to install on system
-linux_installs="diceware mariadb-server net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
-mac_installs="httpd mysql php diceware"
-sql_db_name="${domain//-/}db"
-php_files="/Applications/MAMP/conf/php7.4.2/php.ini /Applications/MAMP/bin/php/php7.4.2/conf/php.ini"
-#--------------------/Variables----------------#
-
-#--------------------Initial Actions----------------#
-debug_function Initial Actions
-
-sudo mkdir -p $moodle_path $domain_path $moodle_data
-#--------------------/Initial Actions----------------#
-
-
 #--------------------Functions----------------#
 debug_function Functions Start
 #check for existing server. Return apache, nginx, or both
@@ -238,39 +209,39 @@ fix_permissions(){
 
 display_information(){
     echo "
-Finish set up by visiting http://${local_ip}/moodle
-SQL Database Name:$sql_db_name - SQL USER:$user
-SQL Password:$sql_pass
+    Finish set up by visiting http://${local_ip}/moodle
+    SQL Database Name:$sql_db_name - SQL USER:$user
+    SQL Password:$sql_pass
 
-Follow the prompts:
-Change the path for moodledata
+    Follow the prompts:
+    Change the path for moodledata
 
-/var/moodledata
-Database Type
+    /var/moodledata
+    Database Type
 
-Choose: mysqli
-Database Settings
+    Choose: mysqli
+    Database Settings
 
-Host server: localhost
+    Host server: localhost
 
-Database: moodle
+    Database: moodle
 
-User: moodledude (the user you created when setting up the database)
+    User: moodledude (the user you created when setting up the database)
 
-Password: passwordformoodledude (the password for the user you created)
+    Password: passwordformoodledude (the password for the user you created)
 
-Tables Prefix: mdl_
-Environment Checks
+    Tables Prefix: mdl_
+    Environment Checks
 
-This will indicate if any elements required to run moodle haven't been installed.
-Next next next...
+    This will indicate if any elements required to run moodle haven't been installed.
+    Next next next...
 
-follow prompts and confirm installation
-Create a Site Administrator Account
+    follow prompts and confirm installation
+    Create a Site Administrator Account
 
-Create your moodle user account which will have site administrator permissions.
+    Create your moodle user account which will have site administrator permissions.
 
-The password you select has to meet certain security requirements. "
+    The password you select has to meet certain security requirements. "
 }
 #--------------------/Functions----------------#
 
@@ -280,9 +251,35 @@ The password you select has to meet certain security requirements. "
 ## Import Questions
 ## Import Settings
 #--------------------/Import----------------#
+#--------------------Variables----------------#
+debug_function Variables
 
-#--------------------Script Start----------------#
+user="username_here"
+admin_email="user@email.com_here"
+
+
+OS=$(uname)
+current_user=$(whoami)
+line="++---------------------------++----------------------------------++"
+#change defaults if needed
+domain="moodle"
+domain_path="/var/www/html"
+moodle_path="${domain_path}/Moodle"
+moodle_data="/var/www/moodledata"
+# pkgs to install on system
+linux_installs="diceware mariadb-server net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+mac_installs="httpd mysql php diceware"
+sql_db_name="${domain//-/}db"
+php_files="/Applications/MAMP/conf/php7.4.2/php.ini /Applications/MAMP/bin/php/php7.4.2/conf/php.ini"
+#--------------------/Variables----------------#
+
+#--------------------Initial Actions----------------#
+debug_function Initial Actions
+
+sudo mkdir -p $moodle_path $domain_path $moodle_data
 sudo apt install -y software-properties-common && sudo apt update
+#--------------------/Initial Actions----------------#
+#--------------------Script Start----------------#
 debug_function script start
 server_check
 required_installs
