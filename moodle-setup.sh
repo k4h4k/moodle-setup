@@ -89,14 +89,10 @@ required_installs(){
 linux_sql_function(){
     #path, domain, adminUser, sql_pass all defined in appacheAttribute function
     #security settings
-    sudo echo -e "US/Eastern" > /etc/timezone
-    dpkg-reconfigure -f noninteractive tzdata
-    #detect php version
-    php_version=7.4
-    #define the timezone to the php.ini for security 
-    sudo chmod 666 /etc/php/*/apache2/php.ini
-    sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/"${php_version}"/apache2/php.ini
-    sudo systemctl enable mariadb.service
+    mkdir -p /var/run/mysqld
+    chown mysql:mysql /var/run/mysqld
+
+    sudo systemctl enable mysql.service
     sudo echo -e "processing...."
     #all www traffic on entire server 
     #confirgure here if ports need to be opened for other services
@@ -169,12 +165,15 @@ mac_moodle_install(){
     open /Applications/MAMP/MAMP.app
 }
 configure_php(){
-    #configure moodle php settings
-    #increase post and upload size to 3GB from 8MB
-    for file in $php_files;do
-        sed -i "post_max_size|s|8M|3G|g" $file
-        sed -i "upload_max_filesize|s|8M|3G|g" $file
-    done
+
+    sudo echo -e "US/Eastern" > /etc/timezone
+    dpkg-reconfigure -f noninteractive tzdata
+    #detect php version
+    php_version=7.4
+    #define the timezone to the php.ini for security 
+    sudo chmod 666 /etc/php/*/apache2/php.ini
+    sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/"${php_version}"/apache2/php.ini
+    
     sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
     #source https://docs.moodle.org/400/en/Configuration_file
     cp $moodle_path/config-dist.php $moodle_path/config.php
@@ -186,7 +185,12 @@ configure_php(){
     sed -i "|\$CFG->wwwroot|s|http://example.com/moodle|http://$local_ip|" config-dist.php
     sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" config-dist.php
 
-
+    #configure moodle php settings
+    #increase post and upload size to 3GB from 8MB
+    for file in $php_files;do
+        sed -i "post_max_size|s|8M|3G|g" $file
+        sed -i "upload_max_filesize|s|8M|3G|g" $file
+    done
 
 }
 
@@ -249,7 +253,7 @@ apache_install_function(){
         DocumentRoot $moodle_path
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
-        </VirtualHost>"|sudo tee /etc/apache2/apache2.conf
+        </VirtualHost>"|sudo tee -a /etc/apache2/apache2.conf
 
     sudo a2ensite "$domain"
     sudo a2dissite 000-default
