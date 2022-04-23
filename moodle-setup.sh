@@ -151,6 +151,7 @@ download_moodle(){
     else
         #assume it esist and move to next step
         printf "moodle git directory already seems to be installed.\n"
+    fi
 }
 mooodle_install(){
     #install git
