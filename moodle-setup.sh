@@ -29,7 +29,7 @@ moodle_data="/var/www/moodledata"
 user="username_here"
 admin_email="user@email.com_here"
 # pkgs to install on system
-linux_installs="diceware software-properties-common mariadb-server net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+linux_installs="diceware mariadb-server net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mysql php diceware"
 sql_db_name="${domain//-/}db"
 php_files="/Applications/MAMP/conf/php7.4.2/php.ini /Applications/MAMP/bin/php/php7.4.2/conf/php.ini"
@@ -245,6 +245,7 @@ display_information(){
 #--------------------/Import----------------#
 
 #--------------------Script Start----------------#
+sudo apt install -y software-properties-common
 debug_function script start
 server_check
 required_installs
