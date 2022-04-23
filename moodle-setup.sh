@@ -117,14 +117,14 @@ FLUSH PRIVILEGES;
 EOF
 }
 configure_php(){
-
+    sudo apt-get --purge remove php-common
     sudo echo -e "US/Eastern" > /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
     #detect php version
     php_version=7.4
     #define the timezone to the php.ini for security 
     sudo chmod 666 /etc/php/*/apache2/php.ini
-    sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/"${php_version}"/apache2/php.ini
+    sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/*/apache2/php.ini
     
     sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
     #source https://docs.moodle.org/400/en/Configuration_file
@@ -342,10 +342,10 @@ moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system
-linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php7.4 libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php php-common libapache2-mod-php graphviz aspell ghostscript clamav php-pspell php-cli php-curl php-gd php-intl php-mysql php-xml php-xmlrpc php-ldap php-zip php-soap php-mbstring git"
 mac_installs="httpd mysql php diceware"
 sql_db_name="${domain//_/}db"
-php_files="/Applications/MAMP/conf/php7.4.2/php.ini /Applications/MAMP/bin/php/php7.4.2/conf/php.ini"
+php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
 
 #--------------------Initial Actions----------------#
