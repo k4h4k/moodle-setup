@@ -112,12 +112,12 @@ linux_install_maria(){
     #sudo mysql_secure_installation
     #-e allows passing of commands , sudo allows running as root user
     #create default sql db
-    sudo mariadb -e "CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+    sudo mysql -e "CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
     #create user
-    sudo mariadb -e "create user \'$user\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
+    sudo mysql -e "create user \'$user\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
     #essentially create sql user based on the current user
-    sudo mariadb -e "GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$user'@'localhost' IDENTIFIED BY '$sql_pass';"
-    sudo mariadb -e "FLUSH PRIVILEGES;"
+    sudo mysql -e "GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$user'@'localhost' IDENTIFIED BY '$sql_pass';"
+    sudo mysql -e "FLUSH PRIVILEGES;"
 }
 
 download_moodle(){
@@ -207,6 +207,11 @@ fix_permissions(){
     sudo chmod -R 777 $moodle_data
 }
 
+set_up_cron(){
+    #source https://docs.moodle.org/400/en/Cron
+    echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $domain_path/admin/cli/cron.php" | sudo crontab -u root -
+}
+
 display_information(){
     echo "
     Finish set up by visiting http://${local_ip}/moodle
@@ -293,6 +298,7 @@ download_moodle
 fix_permissions
 mooodle_install
 fix_permissions
+set_up_cron
 display_information
 
 #--------------------/Script End----------------#
