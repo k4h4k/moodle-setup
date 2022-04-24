@@ -367,7 +367,7 @@ display_information(){
 #--------------------/Functions----------------#
 user_prompts(){
     read -p "Domain Name: " domain
-    if [ -z "${domain+x}" ] || [ "$domain" == "" ]];then
+    if [ -z "${domain+x}"  ||  "$domain" == "" ]];then
         #if nothing detected set to moodle
         domain="moodle"
         echo "The default domain name is $domain"
@@ -376,7 +376,7 @@ user_prompts(){
     read -s sql_pass
     if [[ -z "${sql_pass+x}" ];then
         #assume user didn't enter a password
-        sudo apt install -y diceware
+        sudo apt install -y diceware &> /dev/null
         sql_pass=$(diceware -n 5)
         echo "The generated password is: $sql_pass"
         sleep 2
