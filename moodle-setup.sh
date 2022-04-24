@@ -368,13 +368,13 @@ display_information(){
 #--------------------/Functions----------------#
 user_prompts(){
     read -p "Domain Name: " domain
-    if [ "$domain" -z ];then
+    if [ -z "${domain+x}" ];then
         #if nothing detected set to moodle
         domain="moodle"
     fi
     echo "SQL Password (won't show when typing) (leave blank to autogenerate): "
     read -s sql_pass
-    if [ "$sql_pass" -z ];then
+    if [ -z "${sql_pass+x}" ];then
         #assume user didn't enter a password
         sql_pass=$(diceware -n 5)
     fi
