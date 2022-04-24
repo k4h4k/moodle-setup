@@ -392,6 +392,7 @@ user_prompts(){
 debug_function Variables
 OS=$(uname)
 current_user=$(whoami)
+db_name="${domain}db"
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 moodle_path="/var/www/moodle"
