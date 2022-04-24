@@ -471,7 +471,7 @@ do
         "Set Up Moodle")
             user_prompts
             set_up_system
-            create_defualts
+            #FIXME:create_defualts
             ;;
         "Set Up PHP")
             user_prompts
