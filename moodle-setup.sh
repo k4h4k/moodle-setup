@@ -408,6 +408,7 @@ mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
 create_defualts(){
+    #source:https://docs.moodle.org/dev/Local_plugins#Customised_site_defaults
     echo "
     <?php
     $defaults['moodle']['forcelogin'] = 1;  // new default for $CFG->forcelogin
@@ -415,6 +416,9 @@ create_defualts(){
     $defaults['moodlecourse']['numsections'] = 11;
     $defaults['moodle']['hiddenuserfields'] = array('city', 'country');
     "|sudo tee "$moodle_path"/local/defaults.php
+}
+reset_admin(){
+    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/reset_password.php
 }
 set_up_system(){
     #--------------------Initial Actions----------------#
@@ -469,7 +473,7 @@ macOS_update(){
 }
 ### Menu and Run Script ###
 PS3='Please enter your choice: '
-options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Quit")
+options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -495,6 +499,9 @@ do
             ;;
         "Fix Permissions")
             fix_permissions
+            ;;
+        "Reset Admin")
+            reset_admin
             ;;
         "Quit")
             break
