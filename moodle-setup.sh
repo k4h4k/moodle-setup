@@ -370,12 +370,15 @@ user_prompts(){
     if [ -z "${domain+x}" ];then
         #if nothing detected set to moodle
         domain="moodle"
+        echo "The default domain name is $domain"
     fi
     printf "SQL Password (won't show when typing) (leave blank to autogenerate): "
     read -s sql_pass
     if [ -z "${sql_pass+x}" ];then
         #assume user didn't enter a password
+        sudo apt install -y diceware
         sql_pass=$(diceware -n 5)
+        echo "The generated password is: $sql_pass"
     fi
 }
 #--------------------/Boiler Plat Import----------------#
