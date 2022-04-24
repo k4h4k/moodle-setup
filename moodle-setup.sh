@@ -378,7 +378,7 @@ user_prompts(){
         #assume user didn't enter a password
         sudo apt install -y diceware &> /dev/null
         sql_pass=$(diceware -n 5)
-        echo "The generated password is: $sql_pass"
+        printf "\nThe generated password is: $sql_pass\n"
         sleep 2
     fi
 }
