@@ -175,9 +175,9 @@ configure_php(){
     " | sudo tee "$moodle_path"/config.php
 
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
-    sed -i "|;max_input_var|s|1|5|" /etc/php/7.4/apache2/php.ini
-    sed -i "|upload_max_filesize|s/2M|5G|g" /etc/php/7.4/apache2/php.ini
-    sed -i "|post_max_size|s|8M|5G|g" /etc/php/7.4/apache2/php.ini
+    sed -i "/;max_input_var/s/1/5/g" /etc/php/7.4/apache2/php.ini
+    sed -i "/upload_max_filesize/s/2M/5G/g" /etc/php/7.4/apache2/php.ini
+    sed -i "/post_max_size/s/8M/5G/g" /etc/php/7.4/apache2/php.ini
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
     # for file in $php_files;do
@@ -226,9 +226,12 @@ configure_apache(){
     sudo a2enconf fqdn
     sudo chmod 666 /etc/php/*/apache2/php.ini
     #https://quadlayers.com/fix-divi-builder-timeout-error/
-    sudo sed -i "|^memory_limit|s|128M/256M|g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
+    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/7.4/apache2/php.ini
+    sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.4/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
     #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
-    sudo sed -i "|^max_execution_time|s|30|300|g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
+    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.4/apache2/php.ini
+    sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.4/apache2/php.ini
+    sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.4/apache2/php.ini
     #Create .htaccess file to set new upload size to 10GB
     echo "
     php_value upload_max_filesize 10737418240
@@ -236,15 +239,7 @@ configure_apache(){
     php_value max_execution_time 600
     " | sudo tee "$moodle_path"/.htaccess
     #configure apache.conf to allow override .httaccess
-
-    sudo sed -i '/<Directory \/var\/www\>/,/<\/Directory>/ {/<Directory \/var\/www\>/<\/Directory>/d}'
-    echo "
-    <Directory /var/www/>
-    Options Indexes FollowSymLinks
-    AllowOverride All
-    Require all granted
-    </Directory>
-    "| sudo tee -a /etc/apache2/apache2.conf
+    sudo sed -i 's/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
     sudo apache2ctl configtest && sudo systemctl reload apache2
 }
 download_moodle(){
