@@ -422,8 +422,10 @@ set_up_system(){
 
     sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
     sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
-    sudo apt-get --purge remove -y php-common
-    sudo rm -rf /etc/php/8* /etc/php/5*
+    echo "Clearing PHP"
+    sudo apt-get --purge remove -y php-common &> /dev/null
+    sudo apt-get purge -y php5.* &> /dev/null;sudo apt-get purge -y php6.* &> /dev/null;sudo apt-get purge -y php8.* &> /dev/null
+    sudo apt-get autoclean && sudo apt-get autoremove
     sudo apt install -y software-properties-common && sudo apt update
     #--------------------/Initial Actions----------------#
     #--------------------Script Start----------------#
@@ -474,7 +476,6 @@ do
         "Set Up Moodle")
             user_prompts
             set_up_system
-            create_defualts
             ;;
         "Set Up PHP")
             user_prompts
@@ -499,4 +500,4 @@ do
             ;;
         *) echo "invalid option $REPLY";;
     esac
-do
+done
