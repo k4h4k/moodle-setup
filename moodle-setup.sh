@@ -429,10 +429,7 @@ set_up_system(){
     #--------------------Script Start----------------#
     debug_function script start
     server_check
-    #remove instances of php before installs
-
     required_installs
-
     local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
     download_moodle
     fix_permissions
