@@ -127,15 +127,40 @@ configure_php(){
     sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/*/apache2/php.ini
     
     #source https://docs.moodle.org/400/en/Configuration_file
-    cp "$moodle_path"/config-dist.php "$moodle_path"/config.php
+    touch "$moodle_path"/config.php
+    #create config.php file
+    echo "
+    <?php  // Moodle configuration file
+    unset(\$CFG);
+    global \$CFG;
+    \$CFG = new stdClass();
 
-    ##FIXME: Need to update these values in the $moodle_path/config.php
-    sed -i "/\$CFG->dbname/s/moodle/$db_name/" "$moodle_path"/config.php
-    sed -i "/\$CFG->dbuser/s/username/$domain/" "$moodle_path"/config.php
-    sed -i "/\$CFG->dbpass/s/password/$sql_pass/" "$moodle_path"/config.php
-    sed -i "/\$CFG->wwwroot/s/example.com\/moodle/$local_ip/" "$moodle_path"/config.php
-    sed -i "/\$CFG->dataroot/s/home/var/" "$moodle_path"/config.php
-    sed -i "/\$CFG->dataroot/s/example/www/" "$moodle_path"/config.php
+    \$CFG->dbtype    = 'mariadb';
+    \$CFG->dblibrary = 'native';
+    \$CFG->dbhost    = 'localhost';
+    \$CFG->dbname    = '$db_name';
+    \$CFG->dbuser    = '$domain';
+    \$CFG->dbpass    = '$sql_pass';
+    \$CFG->prefix    = 'mdl_';
+    \$CFG->dboptions = array (
+    'dbpersist' => 0,
+    'dbport' => '',
+    'dbsocket' => '',
+    'dbcollation' => 'utf8_unicode_ci',
+    );
+
+    \$CFG->wwwroot   = 'http://$sql_pass';
+    \$CFG->dataroot  = '/var/www/moodledata';
+    \$CFG->admin     = 'admin';
+
+    \$CFG->directorypermissions = 0777;
+
+    require_once(__DIR__ . '/lib/setup.php');
+
+    // There is no php closing tag in this file,
+    // it is intentional because it prevents trailing whitespace problems!
+    " | sudo tee "$moodle_path"/config.php
+    
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
     sed -i "/;max_input_var/s/1/5" /etc/php/7.4/apache2/php.ini
     sed -i "/upload_max_filesize/s/2M|5G|g" /etc/php/7.4/apache2/php.ini
