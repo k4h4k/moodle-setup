@@ -160,7 +160,7 @@ configure_php(){
     // There is no php closing tag in this file,
     // it is intentional because it prevents trailing whitespace problems!
     " | sudo tee "$moodle_path"/config.php
-    
+
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
     sed -i "/;max_input_var/s/1/5" /etc/php/7.4/apache2/php.ini
     sed -i "/upload_max_filesize/s/2M|5G|g" /etc/php/7.4/apache2/php.ini
@@ -345,7 +345,13 @@ display_information(){
     "
 }
 #--------------------/Functions----------------#
-
+user_prompts(){
+    read -p "Domain Name: " domain
+    if [ "$domain" -z ];then
+        #if nothing detected set to moodle
+        domain="moodle"
+    fi
+}
 #--------------------/Boiler Plat Import----------------#
 ### When standard imports are identified they can fit here.
 ## Import Courses
@@ -358,14 +364,12 @@ OS=$(uname)
 current_user=$(whoami)
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
-domain="digitalfacility"
 moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
 linux_installs="diceware net-tools ufw apache2 mariadb-server fail2ban php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mariadb-server php diceware"
-db_name="${domain//_/}db"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
 
@@ -430,15 +434,19 @@ select opt in "${options[@]}"
 do
     case $opt in
         "Set Up Moodle")
+            user_prompts
             set_up_system
             ;;
         "Set Up PHP")
+            user_prompts
             configure_php
             ;;
         "Set Up SQL")
+            user_prompts
             configure_mysql
             ;;
         "Set Up Apache")
+            user_prompts
             configure_apache
             ;;
         "Upgrade System")
