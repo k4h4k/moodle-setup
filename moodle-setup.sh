@@ -367,7 +367,7 @@ display_information(){
 #--------------------/Functions----------------#
 user_prompts(){
     read -p "Domain Name: " domain
-    if [ -z "${domain+x}"  ||  "$domain" == "" ]];then
+    if [[ -z "${domain+x}"  ||  "$domain" == "" ]];then
         #if nothing detected set to moodle
         domain="moodle"
         echo "The default domain name is $domain"
