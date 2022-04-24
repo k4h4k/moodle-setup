@@ -83,10 +83,10 @@ required_installs(){
         done
 
         sudo systemctl restart apache2
-        sudo systemctl restart mysql.service
+        sudo systemctl restart mariadb.service
         #enable apache to start on reboot
         sudo systemctl enable apache2
-        sudo systemctl enable mysql.service
+        sudo systemctl enable mariadb.service
 
         #end Linux install section
     fi
@@ -94,10 +94,10 @@ required_installs(){
 configure_mysql(){
     #path, domain, adminUser, sql_pass all defined in appacheAttribute function
     #security settings
-    mkdir -p /var/run/mysqld
-    chown mysql:mysql /var/run/mysqld
+    # mkdir -p /var/run/mysqld
+    # chown mysql:mysql /var/run/mysqld
 
-    sudo systemctl enable mysql.service
+    sudo systemctl enable mariadb.service
     sudo echo -e "processing...."
     #all www traffic on entire server 
     #confirgure here if ports need to be opened for other services
@@ -113,13 +113,10 @@ configure_mysql(){
     #sudo mysql_secure_installation
     #-e allows passing of commands , sudo allows running as root user
     #create default sql db    
-    sudo mysql -u root mysql<<EOF
-CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-CREATE USER "$user"@'localhost' IDENTIFIED BY "$sql_pass";
-GRANT ALL PRIVILEGES ON $sql_db_name.* TO "$user"@'localhost' IDENTIFIED BY "$sql_pass"
-FLUSH PRIVILEGES;
-\q
-EOF
+    #-e allows passing of commands , sudo allows running as root user
+    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+    sudo mariadb -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
+    sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
     echo -e "US/Eastern" |sudo tee /etc/timezone
@@ -343,8 +340,8 @@ moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
-linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
-mac_installs="httpd mysql php diceware"
+linux_installs="diceware net-tools ufw apache2 mariadb-server fail2ban php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+mac_installs="httpd mariadb-server php diceware"
 sql_db_name="${domain//_/}db"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
