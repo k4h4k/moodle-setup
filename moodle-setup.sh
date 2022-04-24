@@ -91,7 +91,7 @@ required_installs(){
         #end Linux install section
     fi
 }
-linux_sql_function(){
+configure_mysql(){
     #path, domain, adminUser, sql_pass all defined in appacheAttribute function
     #security settings
     mkdir -p /var/run/mysqld
@@ -115,8 +115,8 @@ linux_sql_function(){
     #create default sql db    
     sudo mysql -u root mysql<<EOF
 CREATE DATABASE $sql_db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;
-CREATE USER '$user'@'localhost' IDENTIFIED BY '$sql_pass';
-GRANT ALL PRIVILEGES ON $sql_db_name.* TO '$user'@'localhost' IDENTIFIED BY '$sql_pass'
+CREATE USER "$user"@'localhost' IDENTIFIED BY "$sql_pass";
+GRANT ALL PRIVILEGES ON $sql_db_name.* TO "$user"@'localhost' IDENTIFIED BY "$sql_pass"
 FLUSH PRIVILEGES;
 \q
 EOF
@@ -149,12 +149,10 @@ configure_php(){
     done
 
 }
-apache_install_function(){
+configure_apache(){
     debug_function "$FUNCNAME"
     #required installs
     echo -e "processing...."
-    echo -e "installing apache2 libapache2-mod-php "
-    sudo apt install apache2 libapache2-mod-php -y &> /dev/null
     sudo ufw allow in "WWW Full"
     sudo systemctl enable apache2
     source /etc/apache2/envvars
@@ -345,41 +343,89 @@ domain="moodle"
 moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
-# pkgs to install on system
+# pkgs to install on system 
 linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mysql php diceware"
 sql_db_name="${domain//_/}db"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
 
-#--------------------Initial Actions----------------#
-debug_function Initial Actions
+set_up_system(){
+    #--------------------Initial Actions----------------#
+    debug_function Initial Actions
 
-sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
-sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
-sudo apt-get --purge remove php-common
-sudo rm -rf /etc/php
-sudo apt install -y software-properties-common && sudo apt update
-#--------------------/Initial Actions----------------#
-#--------------------Script Start----------------#
-debug_function script start
-server_check
-#remove instances of php before installs
+    sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
+    sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
+    sudo apt-get --purge remove php-common
+    sudo rm -rf /etc/php
+    sudo apt install -y software-properties-common && sudo apt update
+    #--------------------/Initial Actions----------------#
+    #--------------------Script Start----------------#
+    debug_function script start
+    server_check
+    #remove instances of php before installs
 
-required_installs
-#diceware and net-tools may be required for install
-base_pass=$(diceware -n 5)
-admin_pass=$(diceware -n 5)
-sql_pass=$(diceware -n 5)
-local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
-download_moodle
-fix_permissions
-apache_install_function
-linux_sql_function
-mooodle_install
-fix_permissions
-configure_php
-set_up_cron
-display_information
+    required_installs
+    #diceware and net-tools may be required for install
+    base_pass=$(diceware -n 5)
+    admin_pass=$(diceware -n 5)
+    sql_pass=$(diceware -n 5)
+    local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
+    download_moodle
+    fix_permissions
+    configure_apache
+    configure_mysql
+    mooodle_install
+    fix_permissions
+    configure_php
+    set_up_cron
+    display_information
 
-#--------------------/Script End----------------#
+    #--------------------/Script End----------------#
+}
+linux_update(){
+    sudo apt update --fix-missing && sudo apt -y upgrade
+    pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
+}
+
+macOS_update(){
+    brew update
+    brew upgrade
+    brew upgrade --greedy
+    brew autoremove
+    brew cleanup -s
+    rm -rf "$(brew --cache)"
+    brew doctor
+    brew missing
+    sudo periodic daily weekly monthly
+    pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 sudo -H python3 -m pip install -U
+    softwareupdate -ia
+}
+
+### Menu and Run Script ###
+PS3='Please enter your choice: '
+options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Quit")
+select opt in "${options[@]}"
+do
+    case $opt in
+        "Set Up Moodle")
+            set_up_system
+            ;;
+        "Set Up PHP")
+            configure_php
+            ;;
+        "Set Up SQL")
+            configure_mysql
+            ;;
+        "Set Up Apache")
+            configure_apache
+            ;;
+        "Upgrade System")
+            linux_update
+            ;;
+        "Quit")
+            break
+            ;;
+        *) echo "invalid option $REPLY";;
+    esac
+done
