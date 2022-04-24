@@ -129,8 +129,8 @@ configure_mysql(){
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
-    #set php7.4 as default
-    sudo update-alternatives --set php /usr/bin/php7.4
+    #set php${php_version} as default
+    sudo update-alternatives --set php /usr/bin/php${php_version}
 
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
@@ -175,9 +175,9 @@ configure_php(){
     " | sudo tee "$moodle_path"/config.php
 
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
-    sed -i "/;max_input_var/s/1/5/g" /etc/php/7.4/apache2/php.ini
-    sed -i "/upload_max_filesize/s/2M/5G/g" /etc/php/7.4/apache2/php.ini
-    sed -i "/post_max_size/s/8M/5G/g" /etc/php/7.4/apache2/php.ini
+    sed -i "/;max_input_var/s/1/5/g" /etc/php/${php_version}/apache2/php.ini
+    sed -i "/upload_max_filesize/s/2M/5G/g" /etc/php/${php_version}/apache2/php.ini
+    sed -i "/post_max_size/s/8M/5G/g" /etc/php/${php_version}/apache2/php.ini
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
     # for file in $php_files;do
@@ -226,12 +226,13 @@ configure_apache(){
     sudo a2enconf fqdn
     sudo chmod 666 /etc/php/*/apache2/php.ini
     #https://quadlayers.com/fix-divi-builder-timeout-error/
-    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/7.4/apache2/php.ini
-    sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.4/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
+    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/${php_version}/apache2/php.ini
+    sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/${php_version}/apache2/php.ini
+    sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/${php_version}/apache2/php.ini
     #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
-    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.4/apache2/php.ini
-    sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.4/apache2/php.ini
-    sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.4/apache2/php.ini
+    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/${php_version}/apache2/php.ini
+    sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/${php_version}/apache2/php.ini
+    sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/${php_version}/apache2/php.ini
     #Create .htaccess file to set new upload size to 10GB
     echo "
     php_value upload_max_filesize 10737418240
@@ -399,13 +400,14 @@ user_prompts(){
 debug_function Variables
 OS=$(uname)
 current_user=$(whoami)
+php_version="7.4"
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
-linux_installs="diceware net-tools poppler-utils ufw apache2 mariadb-server fail2ban php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+linux_installs="diceware net-tools poppler-utils ufw apache2 mariadb-server fail2ban php${php_version} php${php_version}-common libapache2-mod-php graphviz aspell ghostscript clamav php${php_version}-pspell php${php_version}-cli php${php_version}-curl php${php_version}-gd php${php_version}-intl php${php_version}-mysql php${php_version}-xml php${php_version}-xmlrpc php${php_version}-ldap php${php_version}-zip php${php_version}-soap php${php_version}-mbstring git"
 mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
