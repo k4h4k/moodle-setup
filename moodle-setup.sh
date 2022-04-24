@@ -374,7 +374,7 @@ user_prompts(){
     fi
     printf "SQL Password (won't show when typing) (leave blank to autogenerate): "
     read -s sql_pass
-    if [[ -z "${sql_pass+x}" ];then
+    if [[ -z "${sql_pass+x}"||"$sql_pass" == ""||"$sql_pass" == "\n" ]];then
         #assume user didn't enter a password
         sudo apt install -y diceware &> /dev/null
         sql_pass=$(diceware -n 5)
