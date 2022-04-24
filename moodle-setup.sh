@@ -190,7 +190,6 @@ configure_apache(){
     debug_function "$FUNCNAME"
     #required installs
     echo -e "processing...."
-    sudo ufw allow in "WWW Full"
     sudo systemctl enable apache2
     source /etc/apache2/envvars
     chmod 666 /etc/apache2/mods-enabled/dir.conf
@@ -339,23 +338,16 @@ display_information(){
     SQL Password: $sql_pass
     $line
     Follow the prompts:
-    Change the path for moodledata
-
-    /var/moodledata
+    $line
     Database Type
-
-    Choose: mysqli
+    Choose: MariaDB
+    
     Database Settings
-
     Host server: localhost
-
-    Database: moodle
-
-    User: moodledude (the user you created when setting up the database)
-
-    Password: passwordformoodledude (the password for the user you created)
-
-    Tables Prefix: mdl_
+    Database: $db_name
+    User: $domain 
+    Password: $sql_pass 
+    $line
     Environment Checks
 
     This will indicate if any elements required to run moodle haven't been installed.
