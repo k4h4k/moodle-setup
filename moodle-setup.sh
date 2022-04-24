@@ -407,7 +407,15 @@ linux_installs="diceware net-tools poppler-utils ufw apache2 mariadb-server fail
 mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
-
+create_defualts(){
+    echo "
+    <?php
+    $defaults['moodle']['forcelogin'] = 1;  // new default for $CFG->forcelogin
+    $defaults['scorm']['maxgrade'] = 20;    // default for get_config('scorm', 'maxgrade')
+    $defaults['moodlecourse']['numsections'] = 11;
+    $defaults['moodle']['hiddenuserfields'] = array('city', 'country');
+    "|sudo tee "$moodle_path"/local/defaults.php
+}
 set_up_system(){
     #--------------------Initial Actions----------------#
     debug_function Initial Actions
@@ -415,7 +423,7 @@ set_up_system(){
     sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
     sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
     sudo apt-get --purge remove -y php-common
-    sudo rm -rf /etc/php
+    sudo rm -rf /etc/php/8* /etc/php/5*
     sudo apt install -y software-properties-common && sudo apt update
     #--------------------/Initial Actions----------------#
     #--------------------Script Start----------------#
@@ -444,8 +452,6 @@ linux_update(){
     cd $moodle_path && git pull
     pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
 }
-
-
 macOS_update(){
     brew update
     brew upgrade
@@ -459,7 +465,6 @@ macOS_update(){
     pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 sudo -H python3 -m pip install -U
     softwareupdate -ia
 }
-
 ### Menu and Run Script ###
 PS3='Please enter your choice: '
 options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Quit")
@@ -469,6 +474,7 @@ do
         "Set Up Moodle")
             user_prompts
             set_up_system
+            create_defualts
             ;;
         "Set Up PHP")
             user_prompts
@@ -493,4 +499,4 @@ do
             ;;
         *) echo "invalid option $REPLY";;
     esac
-done
+do
