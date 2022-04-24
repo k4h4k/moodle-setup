@@ -372,6 +372,12 @@ user_prompts(){
         #if nothing detected set to moodle
         domain="moodle"
     fi
+    echo "SQL Password (won't show when typing) (leave blank to autogenerate): "
+    read -s sql_pass
+    if [ "$sql_pass" -z ];then
+        #assume user didn't enter a password
+        sql_pass=$(diceware -n 5)
+    fi
 }
 #--------------------/Boiler Plat Import----------------#
 ### When standard imports are identified they can fit here.
@@ -410,10 +416,7 @@ set_up_system(){
     #remove instances of php before installs
 
     required_installs
-    #diceware and net-tools may be required for install
-    base_pass=$(diceware -n 5)
-    admin_pass=$(diceware -n 5)
-    sql_pass=$(diceware -n 5)
+
     local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
     download_moodle
     fix_permissions
@@ -433,6 +436,7 @@ linux_update(){
     cd $moodle_path && git pull
     pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
 }
+
 
 macOS_update(){
     brew update
