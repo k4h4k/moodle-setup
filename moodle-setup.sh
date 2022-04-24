@@ -114,11 +114,22 @@ configure_mysql(){
     #-e allows passing of commands , sudo allows running as root user
     #create default sql db    
     #-e allows passing of commands , sudo allows running as root user
+    #source: https://docs.moodle.org/400/en/Step-by-step_Installation_Guide_for_Ubuntu#Step_2:_Install_Apache.2FMySQL.2FPHP
+
+    echo "
+    default_storage_engine = innodb
+    innodb_file_per_table = 1
+    innodb_file_format = Barracuda
+    "|sudo tee -a /etc/mysql/my.cnf
+    sudo service mysql restart
+    systemctl restart mariadb.service
+
     sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8mb4;"
     sudo mariadb -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
+    sudo apt purge -y php8.*
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
     
