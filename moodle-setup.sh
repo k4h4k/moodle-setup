@@ -341,7 +341,7 @@ moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system
-linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php php-common libapache2-mod-php graphviz aspell ghostscript clamav php-pspell php-cli php-curl php-gd php-intl php-mysql php-xml php-xmlrpc php-ldap php-zip php-soap php-mbstring git"
+linux_installs="diceware net-tools ufw apache2 mysql-client mysql-server php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mysql php diceware"
 sql_db_name="${domain//_/}db"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
@@ -352,13 +352,15 @@ debug_function Initial Actions
 
 sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
 sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
+sudo apt-get --purge remove php-common
+sudo rm -rf /etc/php
 sudo apt install -y software-properties-common && sudo apt update
 #--------------------/Initial Actions----------------#
 #--------------------Script Start----------------#
 debug_function script start
 server_check
 #remove instances of php before installs
-sudo apt-get --purge remove php-common
+
 required_installs
 #diceware and net-tools may be required for install
 base_pass=$(diceware -n 5)
