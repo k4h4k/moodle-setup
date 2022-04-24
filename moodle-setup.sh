@@ -326,7 +326,7 @@ set_up_cron(){
 
 display_information(){
     echo "
-    Finish set up by visiting http://${local_ip}/moodle
+    Finish set up by visiting http://${local_ip}
     SQL Database Name: $db_name - SQL USER: $domain
     SQL Password: $sql_pass
     $line
@@ -360,7 +360,7 @@ display_information(){
 
     The password you select has to meet certain security requirements. 
     $line
-    Finish set up by visiting http://${local_ip}/moodle
+    Finish set up by visiting http://${local_ip}
     SQL Database Name: $db_name - SQL USER: $domain
     SQL Password: $sql_pass
     "
