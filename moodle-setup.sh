@@ -385,6 +385,8 @@ set_up_system(){
 }
 linux_update(){
     sudo apt update --fix-missing && sudo apt -y upgrade
+    git pull #assume script is ran from moodle set up dir
+    cd $moodle_path && git pull
     pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
 }
 
