@@ -409,7 +409,7 @@ set_up_system(){
 
     sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
     sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
-    sudo apt-get --purge remove php-common
+    sudo apt-get --purge remove -y php-common
     sudo rm -rf /etc/php
     sudo apt install -y software-properties-common && sudo apt update
     #--------------------/Initial Actions----------------#
