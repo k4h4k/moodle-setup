@@ -129,7 +129,7 @@ configure_mysql(){
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
-    sudo apt purge -y php8.*
+    sudo apt purge -y php8.* &> /dev/null
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
     
@@ -173,9 +173,9 @@ configure_php(){
     " | sudo tee "$moodle_path"/config.php
 
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
-    sed -i "/;max_input_var/s/1/5" /etc/php/7.4/apache2/php.ini
-    sed -i "/upload_max_filesize/s/2M|5G|g" /etc/php/7.4/apache2/php.ini
-    sed -i "/post_max_size/s/8M|5G|g" /etc/php/7.4/apache2/php.ini
+    sed -i "|;max_input_var|s|1|5|" /etc/php/7.4/apache2/php.ini
+    sed -i "|upload_max_filesize|s/2M|5G|g" /etc/php/7.4/apache2/php.ini
+    sed -i "|post_max_size|s|8M|5G|g" /etc/php/7.4/apache2/php.ini
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
     # for file in $php_files;do
@@ -224,9 +224,9 @@ configure_apache(){
     sudo a2enconf fqdn
     sudo chmod 666 /etc/php/*/apache2/php.ini
     #https://quadlayers.com/fix-divi-builder-timeout-error/
-    sudo sed -i "/^memory_limit/s/128M/256M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
+    sudo sed -i "|^memory_limit|s|128M/256M|g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^upload_max_filesize/s/2M/128M/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^max_file_uploads/s/20/45/g" /etc/php/7.3/apache2/php.ini
     #https://www.wpbeginner.com/wp-tutorials/how-to-fix-the-link-you-followed-has-expired-error-in-wordpress/
-    sudo sed -i "/^max_execution_time/s/30/300/g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
+    sudo sed -i "|^max_execution_time|s|30|300|g" /etc/php/7.3/apache2/php.ini && sudo sed -i "/^post_max_size/s/8M/128M/g" /etc/php/7.3/apache2/php.ini&& sudo sed -i "/^;max_input_vars/s/;//g" /etc/php/7.3/apache2/php.ini
     #Create .htaccess file to set new upload size to 10GB
     echo "
     php_value upload_max_filesize 10737418240
