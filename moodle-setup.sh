@@ -129,7 +129,6 @@ configure_mysql(){
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
-    sudo apt purge -y php8.* &> /dev/null
     #set php7.4 as default
     sudo update-alternatives --set php /usr/bin/php7.4
 
@@ -434,11 +433,8 @@ set_up_system(){
 
     sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
     sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
-    echo "Clearing PHP"
-    sudo apt-get --purge remove -y php-common &> /dev/null
-    sudo apt-get purge -y php5.* &> /dev/null;sudo apt-get purge -y php6.* &> /dev/null;sudo apt-get purge -y php8.* &> /dev/null
-    sudo apt-get autoclean && sudo apt-get autoremove
-    sudo apt install -y software-properties-common && sudo apt update
+    
+    sudo apt install -y software-properties-common &> /dev/null && sudo apt update
     #--------------------/Initial Actions----------------#
     #--------------------Script Start----------------#
     debug_function script start
