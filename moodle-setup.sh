@@ -160,12 +160,22 @@ configure_php(){
     // There is no php closing tag in this file,
     // it is intentional because it prevents trailing whitespace problems!
     " | sudo tee "$moodle_path"/config.php
-
+    #Create .htaccess file to set new upload size to 10GB
     echo "
     php_value upload_max_filesize 10737418240
     php_value post_max_size 10737418240
     php_value max_execution_time 600
     " | sudo tee "$moodle_path"/.htaccess
+    #configure apache.conf to allow override .httaccess
+
+    sudo sed -i '/<Directory \/var\/www\>/,/<\/Directory>/ {/<Directory \/var\/www\>/<\/Directory>/d}'
+    echo "
+    <Directory /var/www/>
+    Options Indexes FollowSymLinks
+    AllowOverride All
+    Require all granted
+    </Directory>
+    "| sudo tee /etc/apache2/apache2.conf
 
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
     sed -i "/;max_input_var/s/1/5" /etc/php/7.4/apache2/php.ini
@@ -302,6 +312,11 @@ fix_permissions(){
     sudo chmod -R 0755 "$moodle_path"
     sudo chown -R www-data:www-data "$moodle_data"
     sudo chmod -R 777 "$moodle_data"
+    #source:https://docs.moodle.org/400/en/Security_recommendations
+    echo -e "Starting  Permission Config for : Directories"
+    sudo find "$moodle_path" -type d -exec chmod 755 {} \;
+    echo -e "Starting  Permission Config for : Files"
+    sudo find "$moodle_path" -type f -exec chmod 644 {} \;
 }
 
 set_up_cron(){
@@ -374,7 +389,7 @@ moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
-linux_installs="diceware net-tools ufw apache2 mariadb-server fail2ban php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
+linux_installs="diceware net-tools poppler-utils ufw apache2 mariadb-server fail2ban php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
