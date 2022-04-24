@@ -114,7 +114,7 @@ configure_mysql(){
     #-e allows passing of commands , sudo allows running as root user
     #create default sql db    
     #-e allows passing of commands , sudo allows running as root user
-    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;"
+    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8mb4;"
     sudo mariadb -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
