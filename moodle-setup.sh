@@ -372,7 +372,7 @@ user_prompts(){
         #if nothing detected set to moodle
         domain="moodle"
     fi
-    echo "SQL Password (won't show when typing) (leave blank to autogenerate): "
+    printf "SQL Password (won't show when typing) (leave blank to autogenerate): "
     read -s sql_pass
     if [ -z "${sql_pass+x}" ];then
         #assume user didn't enter a password
