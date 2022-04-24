@@ -385,18 +385,12 @@ user_prompts(){
         printf "\nThe generated password is: $sql_pass\n"
         sleep 2
     fi
+    db_name="${domain}db"
 }
-#--------------------/Boiler Plat Import----------------#
-### When standard imports are identified they can fit here.
-## Import Courses
-## Import Questions
-## Import Settings
-#--------------------/Import----------------#
 #--------------------Variables----------------#
 debug_function Variables
 OS=$(uname)
 current_user=$(whoami)
-db_name="${domain}db"
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 moodle_path="/var/www/moodle"
