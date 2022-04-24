@@ -122,30 +122,29 @@ FLUSH PRIVILEGES;
 EOF
 }
 configure_php(){
-    sudo echo -e "US/Eastern" > /etc/timezone
+    echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
-    #detect php version
-    php_version=7.4
+    
     #define the timezone to the php.ini for security 
     sudo chmod 666 /etc/php/*/apache2/php.ini
     sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/*/apache2/php.ini
     
     #source https://docs.moodle.org/400/en/Configuration_file
-    cp $moodle_path/config-dist.php $moodle_path/config.php
+    cp "$moodle_path"/config-dist.php "$moodle_path"/config.php
 
     ##FIXME: Need to update these values in the $moodle_path/config.php
-    sed -i "|\$CFG->dbname|s|moodle|$sql_db_name|" $moodle_path/config.php
-    sed -i "|\$CFG->dbuser/s/username|$user|" $moodle_path/config.php
-    sed -i "|\$CFG->dbpass|s|password|$sql_pass|" $moodle_path/config.php
-    sed -i "|\$CFG->wwwroot|s|example.com/moodle|$local_ip|" $moodle_path/config.php
-    sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" $moodle_path/config.php
+    sed -i "|\$CFG->dbname|s|moodle|$sql_db_name|" "$moodle_path"/config.php
+    sed -i "|\$CFG->dbuser/s/username|$user|" "$moodle_path"/config.php
+    sed -i "|\$CFG->dbpass|s|password|$sql_pass|" "$moodle_path"/config.php
+    sed -i "|\$CFG->wwwroot|s|example.com/moodle|$local_ip|" "$moodle_path"/config.php
+    sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" "$moodle_path"/config.php
     #sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
 
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
     for file in $php_files;do
-        sed -i "post_max_size|s|8M|3G|g" $file
-        sed -i "upload_max_filesize|s|8M|3G|g" $file
+        sed -i "post_max_size|s|8M|3G|g" "$file"
+        sed -i "upload_max_filesize|s|8M|3G|g" "$file"
     done
 
 }
@@ -215,16 +214,16 @@ mooodle_install(){
     sudo git branch --track MOODLE_400_STABLE origin/MOODLE_400_STABLE
     sudo git checkout MOODLE_400_STABLE
     #install to /var/www/html
-    sudo cp -R /opt/moodle/* $moodle_path
+    sudo cp -R /opt/moodle/* "$moodle_path"
 
 
-    sudo chmod -R 777 $moodle_path
+    sudo chmod -R 777 "$moodle_path"
     #run install as www-data or apache
-    sudo -u www-data /usr/bin/php $moodle_path/admin/cli/install.php
+    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/install.php
 }
 mac_moodle_install(){
     #download moodle dmg file to Downloads
-    cd ~/Downloads
+    cd ~/Downloads || exit
     wget https://download.moodle.org/download.php/direct/macosx/Moodle4Mac-311.dmg
     hdiutil mount Moodle4Mac-311.dmg
     sudo cp -R /Volumes/Moodle4Mac-311/MAMP /Applications
@@ -268,10 +267,10 @@ mac_moodle_install(){
 
 
 fix_permissions(){
-    sudo chown -R www-data:www-data $moodle_path /var/www
-    sudo chmod -R 0755 $moodle_path
-    sudo chown -R www-data:www-data $moodle_data
-    sudo chmod -R 777 $moodle_data
+    sudo chown -R www-data:www-data "$moodle_path" /var/www
+    sudo chmod -R 0755 "$moodle_path"
+    sudo chown -R www-data:www-data "$moodle_data"
+    sudo chmod -R 777 "$moodle_data"
 }
 
 set_up_cron(){
