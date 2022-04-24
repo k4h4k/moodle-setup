@@ -372,6 +372,10 @@ user_prompts(){
         domain="moodle"
         echo "The default domain name is $domain"
     fi
+    #remove spaces from domain
+    domain=$(echo $domain|sed 's/ //g')
+    echo "Domain is: $domain"
+
     printf "SQL Password (won't show when typing) (leave blank to autogenerate): "
     read -s sql_pass
     if [[ -z "${sql_pass+x}"||"$sql_pass" == ""||"$sql_pass" == "\n" ]];then
