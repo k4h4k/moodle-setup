@@ -450,7 +450,7 @@ macOS_update(){
 
 ### Menu and Run Script ###
 PS3='Please enter your choice: '
-options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Quit")
+options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -472,6 +472,9 @@ do
             ;;
         "Upgrade System")
             linux_update
+            ;;
+        "Fix Permissions")
+            fix_permissions
             ;;
         "Quit")
             break
