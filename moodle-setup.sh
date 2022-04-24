@@ -501,6 +501,7 @@ do
             fix_permissions
             ;;
         "Reset Admin")
+            user_prompts
             reset_admin
             ;;
         "Quit")
