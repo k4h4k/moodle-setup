@@ -114,7 +114,7 @@ configure_mysql(){
     #-e allows passing of commands , sudo allows running as root user
     #create default sql db    
     #-e allows passing of commands , sudo allows running as root user
-    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8mb4 COLLATE utf8_unicode_ci;"
     sudo mariadb -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
@@ -131,19 +131,21 @@ configure_php(){
 
     ##FIXME: Need to update these values in the $moodle_path/config.php
     sed -i "/\$CFG->dbname/s/moodle/$db_name/" "$moodle_path"/config.php
-    sed -i "/\$CFG->dbuser/s/username/$user/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dbuser/s/username/$domain/" "$moodle_path"/config.php
     sed -i "/\$CFG->dbpass/s/password/$sql_pass/" "$moodle_path"/config.php
     sed -i "/\$CFG->wwwroot/s/example.com\/moodle/$local_ip/" "$moodle_path"/config.php
     sed -i "/\$CFG->dataroot/s/home/var/" "$moodle_path"/config.php
     sed -i "/\$CFG->dataroot/s/example/www/" "$moodle_path"/config.php
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
-
+    sed -i "/;max_input_var/s/1/5" /etc/php/7.4/apache2/php.ini
+    sed -i "/upload_max_filesize/s/2M|5G|g" /etc/php/7.4/apache2/php.ini
+    sed -i "/post_max_size/s/8M|5G|g" /etc/php/7.4/apache2/php.ini
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
-    for file in $php_files;do
-        sed -i "post_max_size|s|8M|3G|g" "$file"
-        sed -i "upload_max_filesize|s|8M|3G|g" "$file"
-    done
+    # for file in $php_files;do
+    #     sed -i "post_max_size|s|8M|3G|g" "$file"
+    #     sed -i "upload_max_filesize|s|8M|3G|g" "$file"
+    # done
 
 }
 configure_apache(){
