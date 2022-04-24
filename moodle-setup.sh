@@ -73,15 +73,20 @@ required_installs(){
         #use loop to prevent break from single non usable pkg
 
         #add php repo
-        sudo add-apt-repository ppa:ondrej/php && sudo apt update
+        echo "Installing Required Packages"
+        sudo add-apt-repository -y ppa:ondrej/php &> /dev/null
+        sudo apt update &> /dev/null
         for pkg in $linux_installs;do 
             #install pkg from above , disable stout
             which "$pkg" || sudo apt install -y "$pkg" &> /dev/null
             echo "$pkg installed"
         done
+
         sudo systemctl restart apache2
+        sudo systemctl restart mysql.service
         #enable apache to start on reboot
         sudo systemctl enable apache2
+        sudo systemctl enable mysql.service
 
         #end Linux install section
     fi
@@ -125,7 +130,6 @@ configure_php(){
     sudo chmod 666 /etc/php/*/apache2/php.ini
     sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/*/apache2/php.ini
     
-    sudo sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
     #source https://docs.moodle.org/400/en/Configuration_file
     cp $moodle_path/config-dist.php $moodle_path/config.php
 
@@ -135,6 +139,7 @@ configure_php(){
     sed -i "|\$CFG->dbpass|s|password|$sql_pass|" $moodle_path/config.php
     sed -i "|\$CFG->wwwroot|s|example.com/moodle|$local_ip|" $moodle_path/config.php
     sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" $moodle_path/config.php
+    #sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
 
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
