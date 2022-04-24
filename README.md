@@ -17,7 +17,7 @@ Change the path for moodledata
 /var/moodledata
 ## Database Type
 
-Choose: mysqli
+Choose: MariaDB
 ## Database Settings
 
 Host server: localhost
