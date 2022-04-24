@@ -161,6 +161,12 @@ configure_php(){
     // it is intentional because it prevents trailing whitespace problems!
     " | sudo tee "$moodle_path"/config.php
 
+    echo "
+    php_value upload_max_filesize 10737418240
+    php_value post_max_size 10737418240
+    php_value max_execution_time 600
+    " | sudo tee "$moodle_path"/.htaccess
+
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
     sed -i "/;max_input_var/s/1/5" /etc/php/7.4/apache2/php.ini
     sed -i "/upload_max_filesize/s/2M|5G|g" /etc/php/7.4/apache2/php.ini
