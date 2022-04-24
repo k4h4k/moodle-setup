@@ -124,7 +124,7 @@ configure_mysql(){
     sudo service mysql restart
     systemctl restart mariadb.service
 
-    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8mb4;"
+    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8;"
     sudo mariadb -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
