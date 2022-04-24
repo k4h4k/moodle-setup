@@ -133,12 +133,12 @@ configure_php(){
     cp "$moodle_path"/config-dist.php "$moodle_path"/config.php
 
     ##FIXME: Need to update these values in the $moodle_path/config.php
-    sed -i "|\$CFG->dbname|s|moodle|$sql_db_name|" "$moodle_path"/config.php
-    sed -i "|\$CFG->dbuser/s/username|$user|" "$moodle_path"/config.php
-    sed -i "|\$CFG->dbpass|s|password|$sql_pass|" "$moodle_path"/config.php
-    sed -i "|\$CFG->wwwroot|s|example.com/moodle|$local_ip|" "$moodle_path"/config.php
-    sed -i "|\$CFG->dataroot|s|/home/example/moodledata|$moodle_data|" "$moodle_path"/config.php
-    #sed -i "s|http://${local_ip}/moodle|http://${local_ip}|g" $moodle_path/config.php
+    sed -i "/\$CFG->dbname/s/moodle/$sql_db_name/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dbuser/s/username/$user/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dbpass/s/password/$sql_pass/" "$moodle_path"/config.php
+    sed -i "/\$CFG->wwwroot/s/example.com\/moodle/$local_ip/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dataroot/s/\/home\/example\/moodledata/$moodle_data/" "$moodle_path"/config.php
+    #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
 
     #configure moodle php settings
     #increase post and upload size to 3GB from 8MB
