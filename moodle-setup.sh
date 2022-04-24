@@ -130,11 +130,12 @@ configure_php(){
     cp "$moodle_path"/config-dist.php "$moodle_path"/config.php
 
     ##FIXME: Need to update these values in the $moodle_path/config.php
-    sed -i "/\$CFG->dbname/s/moodle/$sql_db_name/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dbname/s/moodle/$db_name/" "$moodle_path"/config.php
     sed -i "/\$CFG->dbuser/s/username/$user/" "$moodle_path"/config.php
     sed -i "/\$CFG->dbpass/s/password/$sql_pass/" "$moodle_path"/config.php
     sed -i "/\$CFG->wwwroot/s/example.com\/moodle/$local_ip/" "$moodle_path"/config.php
-    sed -i "/\$CFG->dataroot/s/\/home\/example\/moodledata/$moodle_data/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dataroot/s/home/var/" "$moodle_path"/config.php
+    sed -i "/\$CFG->dataroot/s/example/www/" "$moodle_path"/config.php
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
 
     #configure moodle php settings
@@ -161,7 +162,7 @@ configure_apache(){
     sudo touch /etc/apache2/sites-available/"${domain}".conf
     sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
         echo -e "<VirtualHost *:80>
-        ServerName $domain
+        ServerName $domain.lab
         ServerAlias www.$domain
         ServerAdmin $domain@localhost
         DocumentRoot $moodle_path
@@ -172,7 +173,7 @@ configure_apache(){
         " | sudo tee /etc/apache2/sites-available/"${domain}".conf
 
         echo -e "<VirtualHost *:80>
-        ServerName $domain
+        ServerName $domain.lab
         ServerAlias www.$domain
         ServerAdmin $domain@localhost
         DocumentRoot $moodle_path
@@ -278,9 +279,9 @@ set_up_cron(){
 display_information(){
     echo "
     Finish set up by visiting http://${local_ip}/moodle
-    SQL Database Name: $sql_db_name - SQL USER: $user
+    SQL Database Name: $db_name - SQL USER: $domain
     SQL Password: $sql_pass
-
+    $line
     Follow the prompts:
     Change the path for moodledata
 
@@ -310,9 +311,9 @@ display_information(){
     Create your moodle user account which will have site administrator permissions.
 
     The password you select has to meet certain security requirements. 
-    
+    $line
     Finish set up by visiting http://${local_ip}/moodle
-    SQL Database Name: $sql_db_name - SQL USER: $user
+    SQL Database Name: $db_name - SQL USER: $domain
     SQL Password: $sql_pass
     "
 }
@@ -326,23 +327,18 @@ display_information(){
 #--------------------/Import----------------#
 #--------------------Variables----------------#
 debug_function Variables
-
-user="username_here"
-admin_email="user@email.com_here"
-
-
 OS=$(uname)
 current_user=$(whoami)
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
-domain="moodle"
+domain="digitalfacility"
 moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
 linux_installs="diceware net-tools ufw apache2 mariadb-server fail2ban php7.4 php7.4-common libapache2-mod-php graphviz aspell ghostscript clamav php7.4-pspell php7.4-cli php7.4-curl php7.4-gd php7.4-intl php7.4-mysql php7.4-xml php7.4-xmlrpc php7.4-ldap php7.4-zip php7.4-soap php7.4-mbstring git"
 mac_installs="httpd mariadb-server php diceware"
-sql_db_name="${domain//_/}db"
+db_name="${domain//_/}db"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
 
