@@ -130,6 +130,9 @@ configure_mysql(){
 }
 configure_php(){
     sudo apt purge -y php8.* &> /dev/null
+    #set php7.4 as default
+    sudo update-alternatives --set php /usr/bin/php7.4
+
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
     
