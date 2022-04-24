@@ -149,7 +149,7 @@ configure_php(){
     'dbcollation' => 'utf8_unicode_ci',
     );
 
-    \$CFG->wwwroot   = 'http://$sql_pass';
+    \$CFG->wwwroot   = 'http://$local_ip';
     \$CFG->dataroot  = '/var/www/moodledata';
     \$CFG->admin     = 'admin';
 
