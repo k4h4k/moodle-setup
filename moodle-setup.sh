@@ -434,10 +434,10 @@ set_up_system(){
     download_moodle
     mooodle_install
     fix_permissions
-    configure_mysql
-    configure_apache
     #has to be after the install
     configure_php
+    configure_mysql
+    configure_apache
     fix_permissions
     set_up_cron
     display_information
