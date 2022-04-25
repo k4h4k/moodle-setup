@@ -499,7 +499,9 @@ do
         "Restore Backup")
             # if [ -z "${1+x}" ];then
             #     #assume no file was passed
-                read -p "absolute path to backup: " backup_path
+            ##FIXME: showing as "file not found"
+                echo "This file should be placed in /var/www/"
+                read -p "Absolute path to backup (/var/www/backup-moodle2-course-4-courseName-date-num.mbz): " backup_path
             # else
             #     #assume arg is the file to restore
             #     backup_path="$1"
