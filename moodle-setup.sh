@@ -254,9 +254,6 @@ download_moodle(){
         #assume it esist and move to next step
         printf "moodle git directory already seems to be installed.\n"
     fi
-}
-mooodle_install(){
-    #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #install git
     cd /opt/moodle || exit
     sudo git branch -a
@@ -264,11 +261,15 @@ mooodle_install(){
     sudo git checkout MOODLE_400_STABLE
     #install to /var/www/html
     sudo cp -R /opt/moodle/* "$moodle_path"
-
-
-    sudo chmod -R 777 "$moodle_path"
-    #run install as www-data or apache
+}
+mooodle_install(){
+    #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
+    #run install as www-data or apache to generate config.php
     #sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/install.php
+    #assume config.php is created
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$domain@example.com"
+    sudo chmod -R 777 "$moodle_path"
+    
 }
 mac_moodle_install(){
     #download moodle dmg file to Downloads
@@ -290,29 +291,6 @@ mac_moodle_install(){
     sleep 7
     open /Applications/MAMP/MAMP.app
 }
-# setup_apache(){
-#     #edit config file for fqdn
-#     echo "$domain localhost" | sudo tee -a /etc/apache2/conf-available/fqdn.conf
-
-#     #create sample page
-#     sudo cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/$domain.conf  
-
-#     sudo sed -i "s|/var/www/html|$moodle_path|g" /etc/apache2/sites-available/$domain.conf
-#     #enable fqdn
-#     sudo a2enconf fqdn
-
-#     #disable defualt site
-#     #enable domain
-#     sudo a2dissite 000-default && sudo a2ensite $domain
-#     sudo a2enmod ssl
-#     sudo apache2ctl configtest
-#     sudo systemctl reload apache2
-#     #restart apache
-#     sudo /etc/init.d/apache2 restart
-
-#     #create sample page
-#     echo "<b>Hello! $domain is working!</b>" > $moodle_path/index.html
-# }
 
 
 fix_permissions(){
@@ -330,8 +308,11 @@ fix_permissions(){
 set_up_cron(){
     #source https://docs.moodle.org/400/en/Cron
     echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $moodle_path/admin/cli/cron.php" | sudo crontab -u www-data -
+    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/cron.php --enable
 }
-
+restore_backup(){
+    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/restore_backup.php --file="$backup_path" --categoryid=1
+}
 display_information(){
     echo "
     Finish set up by visiting http://${local_ip}
@@ -376,7 +357,10 @@ user_prompts(){
     fi
     #remove spaces from domain
     domain=$(echo $domain|sed 's/ //g')
+    db_name="${domain}db"
     echo "Domain is: $domain"
+    echo "Database Name is: $db_name"
+
 
     printf "SQL Password (won't show when typing) (leave blank to autogenerate): "
     read -s sql_pass
@@ -387,7 +371,18 @@ user_prompts(){
         printf "\nThe generated password is: $sql_pass\n"
         sleep 2
     fi
-    db_name="${domain}db"
+
+    ## Admin Password
+    printf "Admin Password (won't show when typing) (leave blank to autogenerate): "
+    read -s admin_pass
+    if [[ -z "${admin_pass+x}"||"$admin_pass" == ""||"$admin_pass" == "\n" ]];then
+        #assume user didn't enter a password
+        sudo apt install -y diceware &> /dev/null
+        admin_pass=$(diceware -n 5)
+        printf "\nThe generated password is: $admin_pass\n"
+        sleep 2
+    fi
+
 }
 #--------------------Variables----------------#
 debug_function Variables
@@ -495,6 +490,10 @@ do
         "Reset Admin")
             user_prompts
             reset_admin
+            ;;
+        "Restore Backup")
+            read "absolute path to backup: " backup_path
+            restore_backup
             ;;
         "Quit")
             break
