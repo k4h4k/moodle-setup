@@ -414,7 +414,8 @@ create_defualts(){
     "|sudo tee "$moodle_path"/local/defaults.php
 }
 reset_admin(){
-    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/reset_password.php
+    #source:https://github.com/moodle/moodle/blob/master/admin/cli/reset_password.php
+    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/reset_password.php --ignore-password-policy --username="$username" --password="$newpassword"
 }
 set_up_system(){
     #--------------------Initial Actions----------------#
