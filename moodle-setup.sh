@@ -497,13 +497,13 @@ do
             reset_admin
             ;;
         "Restore Backup")
-            if [ -z "${1+x}" ];then
-                #assume no file was passed
-                read "absolute path to backup: " backup_path
-            else
-                #assume arg is the file to restore
-                backup_path="$1"
-            fi
+            # if [ -z "${1+x}" ];then
+            #     #assume no file was passed
+            #     read "absolute path to backup: " backup_path
+            # else
+            #     #assume arg is the file to restore
+            #     backup_path="$1"
+            # fi
             restore_backup
             ;;
         "Quit")
