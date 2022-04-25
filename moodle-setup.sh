@@ -268,7 +268,7 @@ mooodle_install(){
 
     sudo chmod -R 777 "$moodle_path"
     #run install as www-data or apache
-    sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/install.php
+    #sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/install.php
 }
 mac_moodle_install(){
     #download moodle dmg file to Downloads
@@ -433,10 +433,11 @@ set_up_system(){
     local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
     download_moodle
     fix_permissions
-    configure_php
     configure_mysql
     configure_apache
     mooodle_install
+    #has to be after the install
+    configure_php
     fix_permissions
     set_up_cron
     display_information
