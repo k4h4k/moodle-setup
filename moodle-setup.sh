@@ -465,7 +465,7 @@ macOS_update(){
 }
 ### Menu and Run Script ###
 PS3='Please enter your choice: '
-options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Quit")
+options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Restore Backup" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
