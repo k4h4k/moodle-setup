@@ -432,10 +432,10 @@ set_up_system(){
     required_installs
     local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
     download_moodle
+    mooodle_install
     fix_permissions
     configure_mysql
     configure_apache
-    mooodle_install
     #has to be after the install
     configure_php
     fix_permissions
