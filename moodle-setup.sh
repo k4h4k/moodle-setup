@@ -131,6 +131,7 @@ configure_mysql(){
 configure_php(){
     #set php${php_version} as default
     sudo update-alternatives --set php /usr/bin/php${php_version}
+    sudo sed -i "s/public \$line/public int \$line/" /var/www/moodle/lib/xmlize.php
 
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
@@ -328,7 +329,7 @@ fix_permissions(){
 
 set_up_cron(){
     #source https://docs.moodle.org/400/en/Cron
-    echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $moodle_path/admin/cli/cron.php" | sudo crontab -u root -
+    echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $moodle_path/admin/cli/cron.php" | sudo crontab -u www-data -
 }
 
 display_information(){
@@ -432,11 +433,11 @@ set_up_system(){
     local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
     download_moodle
     fix_permissions
-    configure_apache
+    configure_php
     configure_mysql
+    configure_apache
     mooodle_install
     fix_permissions
-    configure_php
     set_up_cron
     display_information
 
