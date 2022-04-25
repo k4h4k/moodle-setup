@@ -50,6 +50,7 @@ server_check(){
 
 
 required_installs(){
+    debug_function "$FUNCNAME"
     if [ "$OS" == "Darwin" ];then
         #assume mac
         #kill any instance of apache
@@ -92,6 +93,7 @@ required_installs(){
     fi
 }
 configure_mysql(){
+    debug_function "$FUNCNAME"
     #path, domain, adminUser, sql_pass all defined in appacheAttribute function
     #security settings
     # mkdir -p /var/run/mysqld
@@ -129,6 +131,7 @@ configure_mysql(){
     sudo mariadb -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
+    debug_function "$FUNCNAME"
     #set php${php_version} as default
     sudo update-alternatives --set php /usr/bin/php${php_version}
 
@@ -243,6 +246,7 @@ configure_apache(){
     sudo apache2ctl configtest && sudo systemctl reload apache2
 }
 download_moodle(){
+    debug_function "$FUNCNAME"
     #download moodle data to moodle path
     cd /opt || exit
     #prevent download if exist
@@ -262,6 +266,7 @@ download_moodle(){
     sudo cp -R /opt/moodle/* "$moodle_path"
 }
 mooodle_install(){
+    debug_function "$FUNCNAME"
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #run install as www-data or apache to generate config.php
     sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="mariadb" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
@@ -271,6 +276,7 @@ mooodle_install(){
     
 }
 mac_moodle_install(){
+    debug_function "$FUNCNAME"
     #download moodle dmg file to Downloads
     cd ~/Downloads || exit
     wget https://download.moodle.org/download.php/direct/macosx/Moodle4Mac-311.dmg
@@ -293,6 +299,7 @@ mac_moodle_install(){
 
 
 fix_permissions(){
+    debug_function "$FUNCNAME"
     sudo chown -R www-data:www-data "$moodle_path" /var/www
     sudo chmod -R 0755 "$moodle_path"
     sudo chown -R www-data:www-data "$moodle_data"
@@ -305,14 +312,17 @@ fix_permissions(){
 }
 
 set_up_cron(){
+    debug_function "$FUNCNAME"
     #source https://docs.moodle.org/400/en/Cron
     echo -e "$(sudo crontab -u root -l)\n* * * * * /usr/bin/php $moodle_path/admin/cli/cron.php" | sudo crontab -u www-data -
     sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/cron.php --enable
 }
 restore_backup(){
+    debug_function "$FUNCNAME"
     sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/restore_backup.php --file="$backup_path" --categoryid=1
 }
 display_information(){
+    debug_function "$FUNCNAME"
     echo "
     Finish set up by visiting http://${local_ip}
     SQL Database Name: $db_name - SQL USER: $domain
@@ -353,6 +363,7 @@ display_information(){
 }
 #--------------------/Functions----------------#
 user_prompts(){
+    debug_function "$FUNCNAME"
     read -p "Domain Name: " domain
     if [[ -z "${domain+x}"||"$domain" == ""||"$domain" == "\n" ]];then
         #if nothing detected set to moodle
@@ -404,6 +415,7 @@ mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
 create_defualts(){
+    debug_function "$FUNCNAME"
     #source:https://docs.moodle.org/dev/Local_plugins#Customised_site_defaults
     echo "
     <?php
@@ -413,11 +425,13 @@ create_defualts(){
     $defaults['moodle']['hiddenuserfields'] = array('city', 'country');
     "|sudo tee "$moodle_path"/local/defaults.php
 }
-reset_admin(){
+reset_user(){
+    debug_function "$FUNCNAME"
     #source:https://github.com/moodle/moodle/blob/master/admin/cli/reset_password.php
     sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/reset_password.php --ignore-password-policy --username="$username" --password="$newpassword"
 }
 set_up_system(){
+    debug_function "$FUNCNAME"
     #--------------------Initial Actions----------------#
     debug_function Initial Actions
 
@@ -445,12 +459,14 @@ set_up_system(){
     #--------------------/Script End----------------#
 }
 linux_update(){
+    debug_function "$FUNCNAME"
     sudo apt update --fix-missing && sudo apt -y upgrade
     git pull #assume script is ran from moodle set up dir
     cd $moodle_path && git pull
     pip3 list --outdated --format=freeze | grep -v '^\-e' | cut -d = -f 1 | xargs -n1 pip3 install -U
 }
 macOS_update(){
+    debug_function "$FUNCNAME"
     brew update
     brew upgrade
     brew upgrade --greedy
@@ -464,6 +480,7 @@ macOS_update(){
     softwareupdate -ia
 }
 ### Menu and Run Script ###
+debug_function Menu Start
 PS3='Please enter your choice: '
 options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Restore Backup" "Quit")
 select opt in "${options[@]}"
@@ -494,7 +511,7 @@ do
             ;;
         "Reset Admin")
             user_prompts
-            reset_admin
+            reset_user
             ;;
         "Restore Backup")
             # if [ -z "${1+x}" ];then
