@@ -10,7 +10,7 @@ dval=0
 #debug function should be ran with "FUNCNAME" variable calling the name of given function
 debug_function(){
     #toggle hashtag of echo to display or not
-    echo "$dval $*"
+    #echo "$dval $*"
     #if echo is commented then debug text will not appear
     #if echo is active then text after function name will appear
     ((dval++))
