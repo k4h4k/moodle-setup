@@ -1,42 +1,32 @@
 # moodle setup
- set up moodle learning environment on debian based linux
-
-# Credit
-Instructions found on the Moodle website: https://docs.moodle.org/400/en/Step-by-step_Installation_Guide_for_Ubuntu
+ Set up Moodle learning Server on Linux or MacOS
 
 # Install and Use
 **One Liner**
 `sudo apt install -y git && git clone https://github.com/k4h4k/moodle-setup && ./moodle-setup/moodle-setup.sh`
 
+# Use 
+The following options are available with this script:
+- Set Up Moodle
+- Set Up PHP
+- Set Up SQL
+- Set Up Apache
+- Upgrade System
+- Fix Permissions
+- Reset Password for Users
 ## After Install
-Open your browser and go to http://IP.ADDRESS.OF.SERVER/moodle
+Follow commands from the prompt.
 
-## Follow the prompts:
-Change the path for moodledata
 
-/var/moodledata
-## Database Type
+## Additional Considerations
+Apache, PHP, and MariaDB (mysql) have been set up along with clamAV(anti-virus)
 
-Choose: MariaDB
-## Database Settings
 
-Host server: localhost
+Several Moodle issues have been resolved such as:
+- Increase File Upload Size
+- Increase Post Size
+- Set up Cron
 
-Database: moodle
 
-User: moodledude (the user you created when setting up the database)
-
-Password: passwordformoodledude (the password for the user you created)
-
-Tables Prefix: mdl_
-## Environment Checks
-
-This will indicate if any elements required to run moodle haven't been installed.
-Next next next...
-
-follow prompts and confirm installation
-Create a Site Administrator Account
-
-Create your moodle user account which will have site administrator permissions.
-
-The password you select has to meet certain security requirements. 
+# Credit
+Instructions found on the Moodle website: https://docs.moodle.org/400/en/Step-by-step_Installation_Guide_for_Ubuntu
