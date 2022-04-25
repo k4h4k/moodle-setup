@@ -131,7 +131,6 @@ configure_mysql(){
 configure_php(){
     #set php${php_version} as default
     sudo update-alternatives --set php /usr/bin/php${php_version}
-    sudo sed -i "s/public \$line/public int \$line/" /var/www/moodle/lib/xmlize.php
 
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
