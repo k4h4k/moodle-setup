@@ -139,41 +139,41 @@ configure_php(){
     #define the timezone to the php.ini for security 
     sudo chmod 666 /etc/php/*/apache2/php.ini
     sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/*/apache2/php.ini
-    
-    #source https://docs.moodle.org/400/en/Configuration_file
-    touch "$moodle_path"/config.php
-    #create config.php file
-    echo "
-    <?php  // Moodle configuration file
-    unset(\$CFG);
-    global \$CFG;
-    \$CFG = new stdClass();
+        ## Section replaced by non-interative strings
+        # #source https://docs.moodle.org/400/en/Configuration_file
+        # touch "$moodle_path"/config.php
+        # #create config.php file
+        # echo "
+        # <?php  // Moodle configuration file
+        # unset(\$CFG);
+        # global \$CFG;
+        # \$CFG = new stdClass();
 
-    \$CFG->dbtype    = 'mariadb';
-    \$CFG->dblibrary = 'native';
-    \$CFG->dbhost    = 'localhost';
-    \$CFG->dbname    = '$db_name';
-    \$CFG->dbuser    = '$domain';
-    \$CFG->dbpass    = '$sql_pass';
-    \$CFG->prefix    = 'mdl_';
-    \$CFG->dboptions = array (
-    'dbpersist' => 0,
-    'dbport' => '',
-    'dbsocket' => '',
-    'dbcollation' => 'utf8_unicode_ci',
-    );
+        # \$CFG->dbtype    = 'mariadb';
+        # \$CFG->dblibrary = 'native';
+        # \$CFG->dbhost    = 'localhost';
+        # \$CFG->dbname    = '$db_name';
+        # \$CFG->dbuser    = '$domain';
+        # \$CFG->dbpass    = '$sql_pass';
+        # \$CFG->prefix    = 'mdl_';
+        # \$CFG->dboptions = array (
+        # 'dbpersist' => 0,
+        # 'dbport' => '',
+        # 'dbsocket' => '',
+        # 'dbcollation' => 'utf8_unicode_ci',
+        # );
 
-    \$CFG->wwwroot   = 'http://$local_ip';
-    \$CFG->dataroot  = '/var/www/moodledata';
-    \$CFG->admin     = 'admin';
+        # \$CFG->wwwroot   = 'http://$local_ip';
+        # \$CFG->dataroot  = '/var/www/moodledata';
+        # \$CFG->admin     = 'admin';
 
-    \$CFG->directorypermissions = 0777;
+        # \$CFG->directorypermissions = 0777;
 
-    require_once(__DIR__ . '/lib/setup.php');
+        # require_once(__DIR__ . '/lib/setup.php');
 
-    // There is no php closing tag in this file,
-    // it is intentional because it prevents trailing whitespace problems!
-    " | sudo tee "$moodle_path"/config.php
+        # // There is no php closing tag in this file,
+        # // it is intentional because it prevents trailing whitespace problems!
+        # " | sudo tee "$moodle_path"/config.php
 
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
     sed -i "/;max_input_var/s/1/5/g" /etc/php/${php_version}/apache2/php.ini
@@ -265,7 +265,7 @@ download_moodle(){
 mooodle_install(){
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #run install as www-data or apache to generate config.php
-    #sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/install.php
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="mariadb" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain" --allow-unstable
     #assume config.php is created
     sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$domain@example.com"
     sudo chmod -R 777 "$moodle_path"
@@ -342,9 +342,14 @@ display_information(){
 
     The password you select has to meet certain security requirements. 
     $line
-    Finish set up by visiting http://${local_ip}
+    
     SQL Database Name: $db_name - SQL USER: $domain
     SQL Password: $sql_pass
+    $line
+    Moodle Admin: Admin
+    Admin Password: $admin_pass
+
+    Finish set up by visiting http://${local_ip}
     "
 }
 #--------------------/Functions----------------#
@@ -427,7 +432,6 @@ set_up_system(){
     required_installs
     local_ip=$(ifconfig|grep "netmask 255.255.255.0"|cut -d ' ' -f 10)
     download_moodle
-    mooodle_install
     fix_permissions
     #has to be after the install
     configure_php
@@ -435,6 +439,7 @@ set_up_system(){
     configure_apache
     fix_permissions
     set_up_cron
+    mooodle_install
     display_information
 
     #--------------------/Script End----------------#
