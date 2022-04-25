@@ -265,7 +265,7 @@ download_moodle(){
 mooodle_install(){
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #run install as www-data or apache to generate config.php
-    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="mariadb" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain" --allow-unstable
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="mariadb" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
     #assume config.php is created
     sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$domain@example.com"
     sudo chmod -R 777 "$moodle_path"
