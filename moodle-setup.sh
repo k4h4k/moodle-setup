@@ -302,8 +302,8 @@ fix_permissions(){
     debug_function "$FUNCNAME"
     sudo chown -R www-data:www-data "$moodle_path" /var/www
     sudo chmod -R 0755 "$moodle_path"
-    sudo chown -R www-data:www-data "$moodle_data" "$moodle_data/Import" "$moodle_data/Import/*"
-    sudo chmod -R 777 "$moodle_data" "$moodle_data/Import"
+    sudo chown -R www-data:www-data "$moodle_data" "$moodle_data/Imports" "$moodle_data/Import/*"
+    sudo chmod -R 777 "$moodle_data" "$moodle_data/Imports"
     #source:https://docs.moodle.org/400/en/Security_recommendations
     echo -e "Starting  Permission Config for : Directories"
     sudo find "$moodle_path" -type d -exec chmod 755 {} \;
@@ -435,7 +435,7 @@ set_up_system(){
     #--------------------Initial Actions----------------#
     debug_function Initial Actions
 
-    sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir "$moodle_data/Import"
+    sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir "$moodle_data/Imports"
     sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
     
     sudo apt install -y software-properties-common &> /dev/null && sudo apt update
