@@ -485,7 +485,7 @@ apt install -y sudo &> /dev/null
 
 debug_function Menu Start
 PS3='Please enter your choice: '
-options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Restore Backup" "Quit")
+options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset User Password" "Restore Backup" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -512,7 +512,7 @@ do
         "Fix Permissions")
             fix_permissions
             ;;
-        "Reset Admin")
+        "Reset User Password")
             user_prompts
             reset_user
             ;;
