@@ -302,7 +302,7 @@ fix_permissions(){
     debug_function "$FUNCNAME"
     sudo chown -R www-data:www-data "$moodle_path" /var/www
     sudo chmod -R 0755 "$moodle_path"
-    sudo chown -R www-data:www-data "$moodle_data" "$moodle_data/Imports" "$moodle_data/Import/*"
+    sudo chown -R www-data:www-data "$moodle_data" "$moodle_data/Imports" "$moodle_data/Imports/*"
     sudo chmod -R 777 "$moodle_data" "$moodle_data/Imports"
     #source:https://docs.moodle.org/400/en/Security_recommendations
     echo -e "Starting  Permission Config for : Directories"
