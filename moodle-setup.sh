@@ -480,6 +480,9 @@ macOS_update(){
     softwareupdate -ia
 }
 ### Menu and Run Script ###
+#install sudo for systems without default sudo running root
+apt install -y sudo 
+
 debug_function Menu Start
 PS3='Please enter your choice: '
 options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Restore Backup" "Quit")
