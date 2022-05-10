@@ -302,8 +302,8 @@ fix_permissions(){
     debug_function "$FUNCNAME"
     sudo chown -R www-data:www-data "$moodle_path" /var/www
     sudo chmod -R 0755 "$moodle_path"
-    sudo chown -R www-data:www-data "$moodle_data"
-    sudo chmod -R 777 "$moodle_data"
+    sudo chown -R www-data:www-data "$moodle_data" "$moodle_data/Imports" "$moodle_data/Imports/*"
+    sudo chmod -R 777 "$moodle_data" "$moodle_data/Imports"
     #source:https://docs.moodle.org/400/en/Security_recommendations
     echo -e "Starting  Permission Config for : Directories"
     sudo find "$moodle_path" -type d -exec chmod 755 {} \;
@@ -436,7 +436,7 @@ set_up_system(){
     #--------------------Initial Actions----------------#
     debug_function Initial Actions
 
-    sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir
+    sudo mkdir -p $moodle_path $moodle_path $moodle_data $quarantine_dir "$moodle_data/Imports"
     sudo chown -R www-data:www-data $moodle_path $moodle_path $moodle_data $quarantine_dir
     
     sudo apt install -y software-properties-common &> /dev/null && sudo apt update
@@ -481,9 +481,12 @@ macOS_update(){
     softwareupdate -ia
 }
 ### Menu and Run Script ###
+#install sudo for systems without default sudo running root
+apt install -y sudo &> /dev/null
+
 debug_function Menu Start
 PS3='Please enter your choice: '
-options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset Admin" "Restore Backup" "Quit")
+options=("Set Up Moodle" "Set Up PHP" "Set Up SQL" "Set Up Apache" "Upgrade System" "Fix Permissions" "Reset User Password" "Restore Backup" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
@@ -510,7 +513,7 @@ do
         "Fix Permissions")
             fix_permissions
             ;;
-        "Reset Admin")
+        "Reset User Password")
             user_prompts
             reset_user
             ;;
