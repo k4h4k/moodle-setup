@@ -84,10 +84,10 @@ required_installs(){
         done
 
         sudo systemctl restart apache2
-        sudo systemctl restart mariadb.service
+        sudo systemctl restart "$sql_version.services"
         #enable apache to start on reboot
         sudo systemctl enable apache2
-        sudo systemctl enable mariadb.service
+        sudo systemctl enable "$sql_version.services"
 
         #end Linux install section
     fi
@@ -99,7 +99,7 @@ configure_mysql(){
     # mkdir -p /var/run/mysqld
     # chown mysql:mysql /var/run/mysqld
 
-    sudo systemctl enable mariadb.service
+    sudo systemctl enable "$sql_version.services"
     sudo echo -e "processing...."
     #all www traffic on entire server 
     #confirgure here if ports need to be opened for other services
@@ -124,11 +124,11 @@ configure_mysql(){
     # innodb_file_format = Barracuda
     # "|sudo tee -a /etc/mysql/my.cnf
     sudo service mysql restart
-    systemctl restart mariadb.service
+    systemctl restart "$sql_version.services"
 
-    sudo mariadb -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
-    sudo mariadb -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
-    sudo mariadb -e "FLUSH PRIVILEGES;"
+    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
+    sudo "$sql_version" -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
     debug_function "$FUNCNAME"
@@ -151,7 +151,7 @@ configure_php(){
         # global \$CFG;
         # \$CFG = new stdClass();
 
-        # \$CFG->dbtype    = 'mariadb';
+        # \$CFG->dbtype    = '"$sql_version"';
         # \$CFG->dblibrary = 'native';
         # \$CFG->dbhost    = 'localhost';
         # \$CFG->dbname    = '$db_name';
@@ -269,7 +269,7 @@ mooodle_install(){
     debug_function "$FUNCNAME"
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #run install as www-data or apache to generate config.php
-    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="mariadb" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype=""$sql_version"" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
     #assume config.php is created
     sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$domain@example.com"
     sudo chmod -R 777 "$moodle_path"
@@ -331,7 +331,7 @@ display_information(){
     Follow the prompts:
     $line
     Database Type
-    Choose: MariaDB
+    Choose: "$sql_version"
     
     Database Settings
     Host server: localhost
@@ -404,6 +404,7 @@ debug_function Variables
 OS=$(uname)
 current_user=$(whoami)
 php_version="7.4"
+sql_version="mysql"
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 moodle_path="/var/www/moodle"
