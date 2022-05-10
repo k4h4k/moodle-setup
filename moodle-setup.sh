@@ -84,10 +84,10 @@ required_installs(){
         done
 
         sudo systemctl restart apache2
-        sudo systemctl restart "$sql_version.services"
+        sudo systemctl restart "$sql_version"
         #enable apache to start on reboot
         sudo systemctl enable apache2
-        sudo systemctl enable "$sql_version.services"
+        sudo systemctl enable "$sql_version"
 
         #end Linux install section
     fi
@@ -99,7 +99,7 @@ configure_mysql(){
     # mkdir -p /var/run/mysqld
     # chown mysql:mysql /var/run/mysqld
 
-    sudo systemctl enable "$sql_version.services"
+    sudo systemctl enable "$sql_version"
     sudo echo -e "processing...."
     #all www traffic on entire server 
     #confirgure here if ports need to be opened for other services
@@ -124,7 +124,7 @@ configure_mysql(){
     # innodb_file_format = Barracuda
     # "|sudo tee -a /etc/mysql/my.cnf
     sudo service mysql restart
-    systemctl restart "$sql_version.services"
+    systemctl restart "$sql_version"
 
     sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
     sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
