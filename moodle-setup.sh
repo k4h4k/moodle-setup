@@ -84,10 +84,10 @@ required_installs(){
         done
 
         sudo systemctl restart apache2
-        sudo systemctl restart "$sql_version"
+        sudo systemctl restart "$sql_service"
         #enable apache to start on reboot
         sudo systemctl enable apache2
-        sudo systemctl enable "$sql_version"
+        sudo systemctl enable "$sql_service"
 
         #end Linux install section
     fi
@@ -99,7 +99,7 @@ configure_mysql(){
     # mkdir -p /var/run/mysqld
     # chown mysql:mysql /var/run/mysqld
 
-    sudo systemctl enable "$sql_version"
+    sudo systemctl enable "$sql_service"
     sudo echo -e "processing...."
     #all www traffic on entire server 
     #confirgure here if ports need to be opened for other services
@@ -124,9 +124,9 @@ configure_mysql(){
     # innodb_file_format = Barracuda
     # "|sudo tee -a /etc/mysql/my.cnf
     sudo service mysql restart
-    systemctl restart "$sql_version"
+    systemctl restart "$sql_service"
 
-    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;"
+    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET $utf_type COLLATE utf8_unicode_ci;"
     sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo "$sql_version" -e "FLUSH PRIVILEGES;"
 }
@@ -151,7 +151,7 @@ configure_php(){
         # global \$CFG;
         # \$CFG = new stdClass();
 
-        # \$CFG->dbtype    = '"$sql_version"';
+        # \$CFG->dbtype    = \'"$sql_version"\';
         # \$CFG->dblibrary = 'native';
         # \$CFG->dbhost    = 'localhost';
         # \$CFG->dbname    = '$db_name';
@@ -269,7 +269,7 @@ mooodle_install(){
     debug_function "$FUNCNAME"
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #run install as www-data or apache to generate config.php
-    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype=""$sql_version"" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="$sql_version_db_type" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
     #assume config.php is created
     sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$domain@example.com"
     sudo chmod -R 777 "$moodle_path"
@@ -404,14 +404,18 @@ debug_function Variables
 OS=$(uname)
 current_user=$(whoami)
 php_version="7.4"
+#options for sqldb
 sql_version="mysql"
+sql_version_db_type="mysqli"
+sql_service="mysqld"
+utf_type="utf8"
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
-linux_installs="diceware net-tools poppler-utils ufw apache2 mariadb-server fail2ban php${php_version} php${php_version}-common libapache2-mod-php graphviz aspell ghostscript clamav php${php_version}-pspell php${php_version}-cli php${php_version}-curl php${php_version}-gd php${php_version}-intl php${php_version}-mysql php${php_version}-xml php${php_version}-xmlrpc php${php_version}-ldap php${php_version}-zip php${php_version}-soap php${php_version}-mbstring git"
+linux_installs="diceware net-tools poppler-utils ufw apache2 mysql-client mysql-server mariadb-server fail2ban php${php_version} php${php_version}-common libapache2-mod-php graphviz aspell ghostscript clamav php${php_version}-pspell php${php_version}-cli php${php_version}-curl php${php_version}-gd php${php_version}-intl php${php_version}-mysql php${php_version}-xml php${php_version}-xmlrpc php${php_version}-ldap php${php_version}-zip php${php_version}-soap php${php_version}-mbstring git"
 mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
