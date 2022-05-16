@@ -126,7 +126,7 @@ configure_mysql(){
     sudo service mysql restart
     systemctl restart "$sql_service"
 
-    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET $utf_type COLLATE utf8_unicode_ci;"
+    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET $utf_type COLLATE ${$utf_type}_unicode_ci;"
     sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
     sudo "$sql_version" -e "FLUSH PRIVILEGES;"
 }
@@ -408,7 +408,7 @@ php_version="7.4"
 sql_version="mysql"
 sql_version_db_type="mysqli"
 sql_service="mysqld"
-utf_type="utf8"
+utf_type="utf8" #or utf8mb4
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
 moodle_path="/var/www/moodle"
