@@ -126,8 +126,8 @@ configure_mysql(){
     sudo service mysql restart
     systemctl restart "$sql_service"
 
-    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET $utf_type COLLATE ${$utf_type}_unicode_ci;"
-    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$domain'@'localhost' IDENTIFIED BY '$sql_pass';"
+    sudo "$sql_version" -e "CREATE DATABASE \'$db_name\' DEFAULT CHARACTER SET \'$utf_type\' COLLATE ${utf_type}_unicode_ci;"
+    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO \'$domain\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
     sudo "$sql_version" -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
