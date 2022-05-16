@@ -385,6 +385,9 @@ user_prompts(){
         sql_pass=$(diceware -n 5)
         printf "\nThe generated password is: $sql_pass\n"
         sleep 2
+    else
+        #new line
+        echo 
     fi
 
     ## Admin Password
@@ -396,6 +399,9 @@ user_prompts(){
         admin_pass=$(diceware -n 5)
         printf "\nThe generated password is: $admin_pass\n"
         sleep 2
+    else
+        #new line
+        echo 
     fi
 
 }
