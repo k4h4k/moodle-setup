@@ -415,7 +415,7 @@ moodle_path="/var/www/moodle"
 moodle_data="/var/www/moodledata"
 quarantine_dir="/var/quarantine"
 # pkgs to install on system 
-linux_installs="diceware net-tools poppler-utils ufw apache2 mysql-client mysql-server mariadb-server fail2ban php${php_version} php${php_version}-common libapache2-mod-php graphviz aspell ghostscript clamav php${php_version}-pspell php${php_version}-cli php${php_version}-curl php${php_version}-gd php${php_version}-intl php${php_version}-mysql php${php_version}-xml php${php_version}-xmlrpc php${php_version}-ldap php${php_version}-zip php${php_version}-soap php${php_version}-mbstring git"
+linux_installs="apache2 apache2-utils apache2-doc libmysqlclient-dev libexpat1 ssl-cert diceware net-tools poppler-utils ufw apache2 mysql-client mysql-server mariadb-server fail2ban php${php_version} php${php_version}-common libapache2-mod-php graphviz aspell ghostscript clamav php${php_version}-pspell php${php_version}-cli php${php_version}-curl php${php_version}-gd php${php_version}-intl php${php_version}-mysql php${php_version}-xml php${php_version}-xmlrpc php${php_version}-ldap php${php_version}-zip php${php_version}-soap php${php_version}-mbstring git"
 mac_installs="httpd mariadb-server php diceware"
 php_files="/Applications/MAMP/conf/php.2/php.ini /Applications/MAMP/bin/php/php.2/conf/php.ini"
 #--------------------/Variables----------------#
