@@ -511,6 +511,7 @@ do
             #FIXME:create_defualts
             ;;
         "Download Requirments")
+            download_moodle
             required_installs
             ;;
         "Set Up SQL")
