@@ -510,9 +510,8 @@ do
             set_up_system
             #FIXME:create_defualts
             ;;
-        "Set Up PHP")
-            user_prompts
-            configure_php
+        "Download Requirments")
+            required_installs
             ;;
         "Set Up SQL")
             user_prompts
