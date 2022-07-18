@@ -127,7 +127,7 @@ configure_mysql(){
     systemctl restart "$sql_service"
 
     sudo "$sql_version" -e "CREATE DATABASE \'$db_name\' DEFAULT CHARACTER SET \'$utf_type\' COLLATE ${utf_type}_unicode_ci;"
-    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO \'$domain\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
+    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO \'$hostname\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
     sudo "$sql_version" -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
@@ -155,7 +155,7 @@ configure_php(){
         # \$CFG->dblibrary = 'native';
         # \$CFG->dbhost    = 'localhost';
         # \$CFG->dbname    = '$db_name';
-        # \$CFG->dbuser    = '$domain';
+        # \$CFG->dbuser    = '$hostname';
         # \$CFG->dbpass    = '$sql_pass';
         # \$CFG->prefix    = 'mdl_';
         # \$CFG->dboptions = array (
@@ -204,9 +204,9 @@ configure_apache(){
     sudo touch /etc/apache2/sites-available/"${domain}".conf
     sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
         echo -e "<VirtualHost *:80>
-        ServerName $domain.lab
-        ServerAlias www.$domain
-        ServerAdmin $domain@localhost
+        ServerName $hostname.lab
+        ServerAlias www.$hostname
+        ServerAdmin $hostname@localhost
         DocumentRoot $moodle_path
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
@@ -215,15 +215,15 @@ configure_apache(){
         " | sudo tee /etc/apache2/sites-available/"${domain}".conf
 
         echo -e "<VirtualHost *:80>
-        ServerName $domain.lab
-        ServerAlias www.$domain
-        ServerAdmin $domain@localhost
+        ServerName $hostname.lab
+        ServerAlias www.$hostname
+        ServerAdmin $hostname@localhost
         DocumentRoot $moodle_path
         ErrorLog ${APACHE_LOG_DIR}/error.log
         CustomLog ${APACHE_LOG_DIR}/access.log combined
         </VirtualHost>"|sudo tee -a /etc/apache2/apache2.conf
 
-    sudo a2ensite "$domain"
+    sudo a2ensite "$hostname"
     sudo a2dissite 000-default
     sudo a2enconf fqdn
     sudo chmod 666 /etc/php/*/apache2/php.ini
@@ -269,9 +269,9 @@ mooodle_install(){
     debug_function "$FUNCNAME"
     #instructions taken from https://docs.moodle.org/400/en/Git_for_Administrators
     #run install as www-data or apache to generate config.php
-    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$domain@example.com" --wwwroot="http://$local_ip" --dbtype="$sql_version_db_type" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$domain" --dbpass="$sql_pass" --fullname="$domain" --shortname="$domain"
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install.php --agree-license --non-interactive --allow-unstable --lang="en" --adminuser="admin" --adminpass="$admin_pass" --adminemail="$hostname@example.com" --wwwroot="http://$local_ip" --dbtype="$sql_version_db_type" --dataroot="$moodle_data" --dbname="$db_name"  --dbuser="$hostname" --dbpass="$sql_pass" --fullname="$hostname" --shortname="$hostname"
     #assume config.php is created
-    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$domain@example.com"
+    sudo -u www-data /usr/bin/php /var/www/moodle/admin/cli/install_database.php --agree-license --lang="en" --adminuser="admin"  --adminpass="$admin_pass" --adminemail="$hostname@example.com"
     sudo chmod -R 777 "$moodle_path"
     
 }
@@ -325,7 +325,7 @@ display_information(){
     debug_function "$FUNCNAME"
     echo "
     Finish set up by visiting http://${local_ip}
-    SQL Database Name: $db_name - SQL USER: $domain
+    SQL Database Name: $db_name - SQL USER: $hostname
     SQL Password: $sql_pass
     $line
     Follow the prompts:
@@ -336,7 +336,7 @@ display_information(){
     Database Settings
     Host server: localhost
     Database: $db_name
-    User: $domain 
+    User: $hostname 
     Password: $sql_pass 
     $line
     Environment Checks
@@ -352,7 +352,7 @@ display_information(){
     The password you select has to meet certain security requirements. 
     $line
     
-    SQL Database Name: $db_name - SQL USER: $domain
+    SQL Database Name: $db_name - SQL USER: $hostname
     SQL Password: $sql_pass
     $line
     Moodle Admin: Admin
@@ -365,15 +365,16 @@ display_information(){
 user_prompts(){
     debug_function "$FUNCNAME"
     read -p "Domain Name: " domain
-    if [[ -z "${domain+x}"||"$domain" == ""||"$domain" == "\n" ]];then
+    #check if domain is not defined or if blank space is assigned
+    if [[ -z "${domain+x}"||"$hostname" == ""||"$hostname" == "\n" ]];then
         #if nothing detected set to moodle
-        domain="moodle"
-        echo "The default domain name is $domain"
+        hostname="moodle"
+        echo "The default domain name is $hostname"
     fi
     #remove spaces from domain
-    domain=$(echo $domain|sed 's/ //g')
+    hostname=$(echo $hostname|sed 's/ //g')
     db_name="${domain}db"
-    echo "Domain is: $domain"
+    echo "Domain is: $hostname"
     echo "Database Name is: $db_name"
 
 
@@ -410,10 +411,14 @@ debug_function Variables
 OS=$(uname)
 current_user=$(whoami)
 php_version="7.4"
+## SQL Type and Vars
 #options for sqldb
-sql_version="mysql"
-sql_version_db_type="mysqli"
-sql_service="mysqld"
+# sql_version="mysql"
+# sql_version_db_type="mysqli"
+# sql_service="mysqld"
+sql_version="mariadb"
+sql_version_db_type="mariadb"
+sql_service="mariadb.service"
 utf_type="utf8" #or utf8mb4
 line="++---------------------------++----------------------------------++"
 #change defaults if needed
