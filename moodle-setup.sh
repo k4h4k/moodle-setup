@@ -133,7 +133,7 @@ configure_mysql(){
 configure_php(){
     debug_function "$FUNCNAME"
     #set php${php_version} as default
-    sudo update-alternatives --set php /usr/bin/php${php_version}
+    sudo update-alternatives --set php /usr/bin/php"${php_version}"
 
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
@@ -435,8 +435,8 @@ create_defualts(){
     #source:https://docs.moodle.org/dev/Local_plugins#Customised_site_defaults
     echo "
     <?php
-    $defaults['moodle']['forcelogin'] = 1;  // new default for $CFG->forcelogin
-    $defaults['scorm']['maxgrade'] = 20;    // default for get_config('scorm', 'maxgrade')
+    $defaults['moodle']['forcelogin'] = 1; 
+    $defaults['scorm']['maxgrade'] = 20;   
     $defaults['moodlecourse']['numsections'] = 11;
     $defaults['moodle']['hiddenuserfields'] = array('city', 'country');
     "|sudo tee "$moodle_path"/local/defaults.php
