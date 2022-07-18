@@ -94,7 +94,7 @@ required_installs(){
 }
 configure_mysql(){
     debug_function "$FUNCNAME"
-    #path, domain, adminUser, sql_pass all defined in appacheAttribute function
+    #path, hostname, adminUser, sql_pass all defined in appacheAttribute function
     #security settings
     # mkdir -p /var/run/mysqld
     # chown mysql:mysql /var/run/mysqld
@@ -201,8 +201,8 @@ configure_apache(){
     </IfModule>" |sudo tee -a /etc/apache2/mods-enabled/dir.conf
     sudo systemctl reload apache2
     #create apache configuration files for website including SSL information
-    sudo touch /etc/apache2/sites-available/"${domain}".conf
-    sudo chmod 666 /etc/apache2/sites-available/"${domain}".conf
+    sudo touch /etc/apache2/sites-available/"${hostname}".conf
+    sudo chmod 666 /etc/apache2/sites-available/"${hostname}".conf
         echo -e "<VirtualHost *:80>
         ServerName $hostname.lab
         ServerAlias www.$hostname
@@ -212,7 +212,7 @@ configure_apache(){
         CustomLog ${APACHE_LOG_DIR}/access.log combined
         </VirtualHost>
         
-        " | sudo tee /etc/apache2/sites-available/"${domain}".conf
+        " | sudo tee /etc/apache2/sites-available/"${hostname}".conf
 
         echo -e "<VirtualHost *:80>
         ServerName $hostname.lab
@@ -364,17 +364,17 @@ display_information(){
 #--------------------/Functions----------------#
 user_prompts(){
     debug_function "$FUNCNAME"
-    read -p "Domain Name: " domain
-    #check if domain is not defined or if blank space is assigned
-    if [[ -z "${domain+x}"||"$hostname" == ""||"$hostname" == "\n" ]];then
+    read -p "Hostname Name: " hostname
+    #check if hostname is not defined or if blank space is assigned
+    if [[ -z "${hostname+x}"||"$hostname" == ""||"$hostname" == "\n" ]];then
         #if nothing detected set to moodle
         hostname="moodle"
-        echo "The default domain name is $hostname"
+        echo "The default hostaname name is $hostname"
     fi
-    #remove spaces from domain
+    #remove spaces from hostname    
     hostname=$(echo $hostname|sed 's/ //g')
-    db_name="${domain}db"
-    echo "Domain is: $hostname"
+    db_name="${hostname}db"
+    echo "Hostname is: $hostname"
     echo "Database Name is: $db_name"
 
 
