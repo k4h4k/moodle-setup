@@ -78,7 +78,7 @@ required_installs(){
         sudo add-apt-repository -y ppa:ondrej/php &> /dev/null
         sudo apt update &> /dev/null
         for pkg in $linux_installs;do 
-            #install pkg from above , disable stout
+            #install pkg from above variable , disable stout
             which "$pkg" || sudo apt install -y "$pkg" &> /dev/null
             echo "$pkg installed"
         done
@@ -114,8 +114,7 @@ configure_mysql(){
     #server hardening script Requires user input
     #sudo mysql_secure_installation
     #-e allows passing of commands , sudo allows running as root user
-    #create default sql db    
-    #-e allows passing of commands , sudo allows running as root user
+    #create default sql db  
     #source: https://docs.moodle.org/400/en/Step-by-step_Installation_Guide_for_Ubuntu#Step_2:_Install_Apache.2FMySQL.2FPHP
 
     # echo "
@@ -125,9 +124,9 @@ configure_mysql(){
     # "|sudo tee -a /etc/mysql/my.cnf
     sudo service mysql restart
     systemctl restart "$sql_service"
-
-    sudo "$sql_version" -e "CREATE DATABASE \'$db_name\' DEFAULT CHARACTER SET \'$utf_type\' COLLATE ${utf_type}_unicode_ci;"
-    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO \'$hostname\'@'localhost' IDENTIFIED BY \'$sql_pass\';"
+    
+    sudo "$sql_version" -e "CREATE DATABASE $db_name DEFAULT CHARACTER SET $utf_type COLLATE ${utf_type}_unicode_ci;"
+    sudo "$sql_version" -e "GRANT ALL PRIVILEGES ON $db_name.* TO $hostname@'localhost' IDENTIFIED BY $sql_pass;"
     sudo "$sql_version" -e "FLUSH PRIVILEGES;"
 }
 configure_php(){
@@ -141,42 +140,6 @@ configure_php(){
     #define the timezone to the php.ini for security 
     sudo chmod 666 /etc/php/*/apache2/php.ini
     sudo sed -i "s/\;date.timezone =/date.timezone = US\/Eastern/" /etc/php/*/apache2/php.ini
-        ## Section replaced by non-interative strings
-        # #source https://docs.moodle.org/400/en/Configuration_file
-        # touch "$moodle_path"/config.php
-        # #create config.php file
-        # echo "
-        # <?php  // Moodle configuration file
-        # unset(\$CFG);
-        # global \$CFG;
-        # \$CFG = new stdClass();
-
-        # \$CFG->dbtype    = \'"$sql_version"\';
-        # \$CFG->dblibrary = 'native';
-        # \$CFG->dbhost    = 'localhost';
-        # \$CFG->dbname    = '$db_name';
-        # \$CFG->dbuser    = '$hostname';
-        # \$CFG->dbpass    = '$sql_pass';
-        # \$CFG->prefix    = 'mdl_';
-        # \$CFG->dboptions = array (
-        # 'dbpersist' => 0,
-        # 'dbport' => '',
-        # 'dbsocket' => '',
-        # 'dbcollation' => 'utf8_unicode_ci',
-        # );
-
-        # \$CFG->wwwroot   = 'http://$local_ip';
-        # \$CFG->dataroot  = '/var/www/moodledata';
-        # \$CFG->admin     = 'admin';
-
-        # \$CFG->directorypermissions = 0777;
-
-        # require_once(__DIR__ . '/lib/setup.php');
-
-        # // There is no php closing tag in this file,
-        # // it is intentional because it prevents trailing whitespace problems!
-        # " | sudo tee "$moodle_path"/config.php
-
     #sed -i "s/${local_ip}\/moodle/${local_ip}/g" $moodle_path/config.php
     sed -i "/;max_input_var/s/1/5/g" /etc/php/${php_version}/apache2/php.ini
     sed -i "/upload_max_filesize/s/2M/5G/g" /etc/php/${php_version}/apache2/php.ini
@@ -444,6 +407,7 @@ create_defualts(){
     "|sudo tee "$moodle_path"/local/defaults.php
 }
 reset_user(){
+    #function used to reset user accounts using the php file provided by moodle
     debug_function "$FUNCNAME"
     #source:https://github.com/moodle/moodle/blob/master/admin/cli/reset_password.php
     sudo -u www-data /usr/bin/php "$moodle_path"/admin/cli/reset_password.php --ignore-password-policy --username="$username" --password="$newpassword"
