@@ -133,7 +133,7 @@ configure_mysql(){
 configure_php(){
     debug_function "$FUNCNAME"
     #set php${php_version} as default
-    sudo update-alternatives --set php /usr/bin/php"${php_version}"
+    sudo update-alternatives --set php /usr/bin/php${php_version}
 
     echo -e "US/Eastern" |sudo tee /etc/timezone
     dpkg-reconfigure -f noninteractive tzdata
@@ -252,17 +252,19 @@ download_moodle(){
     #prevent download if exist
     if [[ ! -e /opt/moodle ]];then
         #assume moodle does not exist and download
-        sudo git clone https://github.com/moodle/moodle.git
+        ## source for syntax https://www.freecodecamp.org/news/git-clone-branch-how-to-clone-a-specific-branch/
+        git clone --branch MOODLE_400_STABLE https://github.com/moodle/moodle.git
+        cd /opt/moodle || exit
     else
         #assume it esist and move to next step
-        printf "moodle git directory already seems to be installed.\n"
+        printf "moodle git directory already seems to be installed.\n Updating\n"
+        cd /opt/moodle
+        git pull .
     fi
     #install git
     cd /opt/moodle || exit
-    sudo git branch -a
-    sudo git branch --track MOODLE_400_STABLE origin/MOODLE_400_STABLE
-    sudo git checkout MOODLE_400_STABLE
-    #install to /var/www/html
+    
+    #copy contents to /var/www/html
     sudo cp -R /opt/moodle/* "$moodle_path"
 }
 mooodle_install(){
@@ -435,8 +437,8 @@ create_defualts(){
     #source:https://docs.moodle.org/dev/Local_plugins#Customised_site_defaults
     echo "
     <?php
-    $defaults['moodle']['forcelogin'] = 1; 
-    $defaults['scorm']['maxgrade'] = 20;   
+    $defaults['moodle']['forcelogin'] = 1;  // new default for $CFG->forcelogin
+    $defaults['scorm']['maxgrade'] = 20;    // default for get_config('scorm', 'maxgrade')
     $defaults['moodlecourse']['numsections'] = 11;
     $defaults['moodle']['hiddenuserfields'] = array('city', 'country');
     "|sudo tee "$moodle_path"/local/defaults.php
